@@ -14,7 +14,7 @@ header{background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:24
 .product button{background:#ff4c00;color:#fff;padding:10px;border:none;border-radius:5px;margin-top:10px;cursor:pointer;width:100%;}
 .product button:hover{background:#e24300;}
 .contact-icons{position:fixed;right:20px;bottom:20px;display:flex;flex-direction:column;}
-.contact-icons a{margin:5px;text-decoration:none;font-size:24px;}
+.contact-icons a{margin:5px;text-decoration:none;font-size:28px;}
 footer{background:#333;color:#fff;text-align:center;padding:10px;margin-top:20px;}
 </style>
 </head>
@@ -45,14 +45,13 @@ footer{background:#333;color:#fff;text-align:center;padding:10px;margin-top:20px
   <a href="https://www.facebook.com/share/14Sd48q5kpU/" target="_blank" style="color:#4267B2;">🔵</a>
 </div>
 
-<footer id="footerText">© 2026 Titan Mart | WhatsApp: 01980236917</footer>
+<footer id="footerText">© 2026 Titan Mart BD | WhatsApp: 01980236917</footer>
 
 <script>
 let lang='en';
 function toggleLang(){
   lang = (lang==='en')?'bn':'en';
   document.querySelector('.lang-btn').innerText = (lang==='en')?'বাংলা':'English';
-  // Change product names + Buy Now text
   document.querySelectorAll('.prod-name').forEach((el,i)=>{
     if(lang==='bn'){
       el.innerText = i===0?'আর্ক লাইটার':'নাকের চুল ট্রিমার';
@@ -66,8 +65,8 @@ function toggleLang(){
   document.querySelectorAll('.buy-btn').forEach((el)=>{
     el.innerText = (lang==='bn')?'কিনুন':'Buy Now';
   });
-  document.getElementById('siteTitle').innerText = (lang==='bn')?'টাইতান মার্ট':'Titan Mart';
-  document.getElementById('footerText').innerText = (lang==='bn')?'© 2026 টাইতান মার্ট | WhatsApp: 01980236917':'© 2026 Titan Mart | WhatsApp: 01980236917';
+  document.getElementById('siteTitle').innerText = (lang==='bn')?'টাইটান মার্ট বিডি':'Titan Mart BD';
+  document.getElementById('footerText').innerText = (lang==='bn')?'© 2026 টাইটান মার্ট বিডি | WhatsApp: 01980236917':'© 2026 Titan Mart BD | WhatsApp: 01980236917';
 }
 </script>
 
