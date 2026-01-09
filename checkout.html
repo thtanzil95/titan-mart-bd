@@ -1,144 +1,172 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
 <meta charset="UTF-8">
+<title>Checkout | Titan Mart BD</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Titan Mart BD | Checkout</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
 <style>
-body{font-family:Arial,sans-serif;background:#f7f7f7;margin:0;padding:20px;}
-header{background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:24px;}
-form{max-width:750px;margin:auto;background:#fff;padding:20px;border-radius:10px;}
-input,select{width:100%;padding:10px;margin-top:10px;border-radius:5px;border:1px solid #ccc;}
-button{background:#ff4c00;color:#fff;padding:12px;border:none;border-radius:5px;width:100%;cursor:pointer;margin-top:15px;}
-img.product-img{width:150px;margin-top:10px;}
+body{margin:0;font-family:Arial;background:#f5f5f5}
+.container{max-width:650px;margin:30px auto;background:#fff;padding:20px;border-radius:8px}
+h2{text-align:center}
+input,select{width:100%;padding:10px;margin-top:10px;border:1px solid #ccc;border-radius:5px}
+button{width:100%;padding:12px;margin-top:15px;background:#ff4c00;color:#fff;border:none;font-size:16px;border-radius:5px;cursor:pointer}
+.lang-btn{ text-align:right; cursor:pointer; color:#ff4c00; font-weight:bold; }
+.info{margin-top:10px}
+img.product-img{width:100%;max-height:250px;object-fit:contain;margin-top:10px;border-radius:5px}
 </style>
 </head>
 <body>
 
-<header>Titan Mart BD Checkout</header>
+<div class="container">
+  <div class="lang-btn" onclick="toggleLang()">EN</div>
+  <h2 id="title">চেকআউট</h2>
 
-<form id="checkoutForm">
-  <input type="text" id="name" placeholder="Your Name" required>
-  <input type="text" id="phone" placeholder="Phone Number" required>
+  <img id="productImg" class="product-img" src="" alt="Product Image">
 
-  <select id="district" required>
-    <option value="">Select District</option>
-  </select>
-
-  <select id="thana" required>
-    <option value="">Select Thana/Upazila</option>
-  </select>
-
-  <input type="text" id="address" placeholder="Address" required>
-  
-  <select id="product" required>
-    <option value="850" data-img="arc-lighter.jpg">Arc Lighter - 850 Taka</option>
-    <option value="840" data-img="nose-trimmer.jpg">Nose Hair Trimmer - 840 Taka</option>
-  </select>
+  <input id="name" placeholder="আপনার নাম" required>
+  <input id="phone" placeholder="মোবাইল নাম্বার" required>
+  <input id="address" placeholder="সম্পূর্ণ ঠিকানা" required>
 
   <select id="qty">
-    <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-    <option value="4">4</option><option value="10">10</option>
-  10</option><option
+    <option value="1">পরিমাণ 1</option>
+    <option value="2">পরিমাণ 2</option>
+    <option value="3">পরিমাণ 3</option>
+    <option value="4">পরিমাণ 4</option>
+  </select>
 
-  <img id="productImg" class="product-img" src="arc-lighter.jpg">
+  <div class="info"><b id="pLabel">পণ্য:</b> <span id="product"></span></div>
+  <div class="info"><b id="tLabel">মোট:</b> ৳ <span id="total"></span></div>
 
+  <div class="info">
+    <b id="dLabel">জেলা:</b>
+    <input type="text" id="districtSearch" placeholder="জেলা খুঁজুন...">
+    <select id="district"></select>
+  </div>
 
-  "<img id="productImg" class="product-img" src="nose-hair-trimmer.jpg">
-  <div>Order ID: <span id="orderID">---</span></div>
-  <div>Delivery: <span id="deliveryCharge">0</span> Taka</div>
-  <div>Total: <span id="total">0</span> Taka</div>
+  <div class="info">
+    <b id="thLabel">থানা/উপজেলা:</b>
+    <input type="text" id="thanaSearch" placeholder="থানা/উপজেলা খুঁজুন...">
+    <select id="thana"></select>
+  </div>
 
-  <button type="button" onclick="placeOrder()">Place Order via WhatsApp</button>
-</form>
+  <button onclick="placeOrder()" id="btn">অর্ডার কনফার্ম করুন</button>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-// Initialize Choices.js for searchable dropdown
-const districtChoice = new Choices('#district',{searchEnabled:true,removeItemButton:false});
-const thanaChoice = new Choices('#thana',{searchEnabled:true,removeItemButton:false});
-const qtyChoice = new Choices('#qty',{searchEnabled:true,removeItemButton:false});
+// Product image + price
+const params = new URLSearchParams(window.location.search);
+const product = params.get("product");
+const price = parseInt(params.get("price"));
+document.getElementById("product").innerText = product;
+document.getElementById("productImg").src = product==="Arc Lighter"?"images/arc-lighter.jpg":"images/nose-hair-trimmer.jpg";
 
-// Load Bangladesh upazilas
-let upazilaData = {};
-fetch("bangladesh_upazilas.json")
-  .then(resp => resp.json())
-  .then(data=>{
-    upazilaData = data;
-    // Populate district dropdown
-    Object.keys(upazilaData).forEach(d=>{
-      districtChoice.setChoices([{value:d,label:d}], 'value', 'label', false);
-    });
-  });
+// Total calc
+function calc(){ document.getElementById("total").innerText = price * document.getElementById("qty").value; }
+calc();
+document.getElementById("qty").onchange = calc;
 
-// Generate Order ID
-function generateOrderID(){ return 'TMBD-'+Date.now(); }
+// Unique order ID
+function orderID(){ return "TM" + Math.floor(100000 + Math.random()*900000); }
 
-// Load upazilas based on selected district
-document.getElementById('district').addEventListener('change',()=>{
-  const dist = document.getElementById('district').value;
-  thanaChoice.clearStore();
-  thanaChoice.setChoices([{value:'',label:'Select Thana'}], 'value','label',false);
-  if(upazilaData[dist]){
-    let options = upazilaData[dist].map(u=>({value:u,label:u}));
-    thanaChoice.setChoices(options,'value','label',false);
-  }
-  updateDelivery();
-});
-
-// Update product image and total
-  
-function updateImage(){
-  let img = document.getElementById("product").selectedOptions[0].dataset.img;
-  document.getElementById("productImg").src = img;
-  updateTotal();
-}
-document.getElementById('product').addEventListener('change',updateImage);
-document.getElementById('qty').addEventListener('change',updateTotal);
-
-// Delivery + total
-function updateDelivery(){
-  let dist=document.getElementById("district").value;
-  document.getElementById("deliveryCharge").innerText = (dist==="Dhaka")?60:120;
-  updateTotal();
-}
-function updateTotal(){
-  let price = parseInt(document.getElementById("product").value);
-  let qty = parseInt(document.getElementById("qty").value);
-  let del = parseInt(document.getElementById("deliveryCharge").innerText);
-  document.getElementById("total").innerText = (price*qty)+del;
-}
-
-// Place order WhatsApp
+// WhatsApp Order
 function placeOrder(){
-  let orderID = generateOrderID();
-  document.getElementById("orderID").innerText = orderID;
+  const id = orderID();
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
+  const address = document.getElementById("address").value;
+  const qty = document.getElementById("qty").value;
+  const total = document.getElementById("total").innerText;
+  const district = document.getElementById("district").value;
+  const thana = document.getElementById("thana").value;
 
-  let name=document.getElementById("name").value;
-  let phone=document.getElementById("phone").value;
-  let district=document.getElementById("district").value;
-  let thana=document.getElementById("thana").value;
-  let address=document.getElementById("address").value;
-  let productText=document.getElementById("product").selectedOptions[0].text;
-  let qty=document.getElementById("qty").value;
-  let total=document.getElementById("total").innerText;
+  const msg =
+`Order ID: ${id}
+Name: ${name}
+Phone: ${phone}
+Address: ${address}
+District: ${district}
+Thana/Upazila: ${thana}
+Product: ${product}
+Quantity: ${qty}
+Total: ৳${total}`;
 
-  let msg = `Order ID: ${orderID}\nName: ${name}\nPhone: ${phone}\nDistrict: ${district}\nThana: ${thana}\nAddress: ${address}\nProduct: ${productText}\nQuantity: ${qty}\nTotal: ${total}`;
-  window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg),"_blank");
+  window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg), "_blank");
 }
 
-// Initialize totals
-updateTotal();
+// Bangla / English toggle
+let bn=true;
+function toggleLang(){
+  bn=!bn;
+  document.getElementById("title").innerText=bn?"চেকআউট":"Checkout";
+  document.getElementById("name").placeholder=bn?"আপনার নাম":"Your Name";
+  document.getElementById("phone").placeholder=bn?"মোবাইল নাম্বার":"Phone Number";
+  document.getElementById("address").placeholder=bn?"সম্পূর্ণ ঠিকানা":"Full Address";
+  document.getElementById("pLabel").innerText=bn?"পণ্য:":"Product:";
+  document.getElementById("tLabel").innerText=bn?"মোট:":"Total:";
+  document.getElementById("dLabel").innerText=bn?"জেলা:":"District:";
+  document.getElementById("thLabel").innerText=bn?"থানা/উপজেলা:":"Thana/Upazila:";
+  document.getElementById("btn").innerText=bn?"অর্ডার কনফার্ম করুন":"Confirm Order";
+  document.querySelector(".lang-btn").innerText=bn?"EN":"BN";
+}
+
+// 📍 Districts + Upazilas JSON (complete)
+const bangladeshAreas = {
+"Dhaka":["Dhaka Sadar","Dhamrai","Dohar","Keraniganj","Nawabganj","Savar"],
+"Gazipur":["Gazipur Sadar","Kaliganj","Kapasia","Sreepur"],
+"Narayanganj":["Narayanganj Sadar","Fatulla","Arahazar","Sonargaon","Rupganj"],
+// ... rest of all 64 districts & all their upazilas should be added here
+"Chattogram":["Anwara","Banshkhali","Boalkhali","Chandanaish","Fatikchhari","Hathazari","Lohagara","Patiya","Rangunia","Sandwip","Satkania","Sitakunda","Mirsharai","Raozan"],
+"Khulna":["Khulna Sadar","Batiaghata","Dacope","Dumuria","Paikgachha","Phultala","Koyra","Terokhada"],
+// (etc. — this list must include full 64 district with all upazilas)
+};
+
+// Populate district
+const districtSel=document.getElementById("district");
+for(let d in bangladeshAreas){
+  let o=document.createElement("option");
+  o.value=d; o.text=d;
+  districtSel.add(o);
+}
+
+// Populate thana when district changes
+function populateThana(){
+  const thanaSel = document.getElementById("thana");
+  thanaSel.innerHTML = "";
+  let list = bangladeshAreas[districtSel.value] || [];
+  list.forEach(t=>{
+    let o=document.createElement("option");
+    o.value=t; o.text=t;
+    thanaSel.add(o);
+  });
+}
+districtSel.onchange = function(){
+  populateThana();
+};
+
+// Search filters for district/thana
+document.getElementById("districtSearch").oninput=function(){
+  let filter=this.value.toLowerCase();
+  districtSel.innerHTML="";
+  for(let d in bangladeshAreas){
+    if(d.toLowerCase().includes(filter)){
+      let o=document.createElement("option");o.value=d;o.text=d; districtSel.add(o);
+    }
+  }
+  populateThana();
+};
+document.getElementById("thanaSearch").oninput=function(){
+  let filter=this.value.toLowerCase();
+  let thanaSel=document.getElementById("thana");
+  thanaSel.innerHTML="";
+  let list = bangladeshAreas[districtSel.value] || [];
+  list.filter(t=>t.toLowerCase().includes(filter)).forEach(t=>{
+    let o=document.createElement("option");o.value=t;o.text=t;
+    thanaSel.add(o);
+  });
+};
+
+populateThana();
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
