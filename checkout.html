@@ -3,204 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checkout | Titan Mart</title>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<title>Titan Mart BD| Checkout</title>
 <style>
-body{font-family:Arial,sans-serif; background:#f7f7f7; padding:20px;}
-form{max-width:600px;margin:auto;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-input,select{width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:5px;}
-button{background:#ff4c00;color:white;padding:12px;border:none;border-radius:5px;cursor:pointer;font-size:16px;}
+body{font-family:Arial,sans-serif;background:#f7f7f7;padding:20px;margin:0;}
+header{background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:24px;display:flex;justify-content:space-between;align-items:center;}
+.lang-btn{background:#fff;color:#ff4c00;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;}
+h2{text-align:center;color:#ff4c00;}
+form{max-width:700px;margin:auto;background:#fff;padding:25px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.15);}
+input,select{width:100%;padding:10px;margin:8px 0;border-radius:5px;border:1px solid #ccc;}
+button{background:#ff4c00;color:#fff;padding:12px;border:none;border-radius:5px;font-size:16px;width:100%;cursor:pointer;margin-top:10px;}
 button:hover{background:#e24300;}
 .total{font-weight:bold;font-size:18px;margin-top:10px;}
-#invoice{display:none;width:400px;padding:20px;background:white;border:1px solid #ccc;}
 </style>
 </head>
 <body>
 
-<h2 style="text-align:center;color:#ff4c00;">Checkout Page</h2>
+<header>
+  <div id="siteTitle">Titan Mart BD</div>
+  <button class="lang-btn" onclick="toggleLang()">বাংলা</button>
+</header>
+
+<h2 id="checkoutTitle">Checkout</h2>
 
 <form id="checkoutForm">
-  Name:<input id="name" type="text" required>
-  Phone:<input id="phone" type="text" required>
-  Alt Phone:<input id="altphone" type="text">
+  <label id="nameLabel">Name:</label><input type="text" id="name" placeholder="Your Name" required>
+  <label id="phoneLabel">Phone:</label><input type="text" id="phone" placeholder="Phone Number" required>
+  <label id="altLabel">Alt Phone:</label><input type="text" id="altphone" placeholder="Alternate Phone">
 
-  District:
+  <label id="districtLabel">District:</label>
   <select id="district" onchange="updateThanaAndDelivery()" required>
     <option value="">Select District</option>
   </select>
 
-  Thana/Upazila:
+  <label id="thanaLabel">Thana/Upazila:</label>
   <select id="thana" required>
     <option value="">Select Thana</option>
   </select>
 
-  Address:<input id="address" type="text" required>
+  <label id="addressLabel">Address:</label><input type="text" id="address" placeholder="Full Address" required>
 
-  Product:
+  <label id="productLabel">Product:</label>
   <select id="product" onchange="updateTotal()">
-    <option value="850">Arc Lighter</option>
-    <option value="840">Nose Hair Trimmer</option>
+    <!-- JS will set initial product from URL -->
   </select>
 
-  Quantity:<input id="qty" type="number" value="1" min="1" onchange="updateTotal()">
+  <label id="qtyLabel">Quantity:</label><input type="number" id="qty" value="1" min="1" onchange="updateTotal()">
 
-  Delivery Charge: <span id="deliveryCharge">0</span> Taka
-  <div class="total">Total: <span id="total">0</span> Taka</div>
+  <div id="deliveryLabel">Delivery Charge: <span id="deliveryCharge">0</span> Taka</div>
+  <div class="total" id="totalLabel">Total: <span id="total">0</span> Taka</div>
 
-  <button type="button" onclick="sendOrder()">Place Order</button>
+  <button type="button" onclick="placeOrder()" id="placeBtn">Place Order via WhatsApp</button>
 </form>
 
-<!-- Hidden invoice div for JPG -->
-<div id="invoice">
-  <h3 style="text-align:center;color:#ff4c00;">Titan Mart Invoice</h3>
-  <p><strong>Order ID:</strong> <span id="invOrderId"></span></p>
-  <p><strong>Name:</strong> <span id="invName"></span></p>
-  <p><strong>Phone:</strong> <span id="invPhone"></span></p>
-  <p><strong>District:</strong> <span id="invDistrict"></span></p>
-  <p><strong>Thana:</strong> <span id="invThana"></span></p>
-  <p><strong>Address:</strong> <span id="invAddress"></span></p>
-  <p><strong>Product:</strong> <span id="invProduct"></span></p>
-  <p><strong>Quantity:</strong> <span id="invQty"></span></p>
-  <p><strong>Delivery:</strong> <span id="invDelivery"></span> Taka</p>
-  <p><strong>Total:</strong> <span id="invTotal"></span> Taka</p>
-</div>
-
 <script>
-// ======= Bangladesh District + Upazila Data =======
+// Language toggle
+let lang='en';
+function toggleLang(){
+  lang = (lang==='en')?'bn':'en';
+  document.querySelector('.lang-btn').innerText = (lang==='en')?'বাংলা':'English';
+  document.getElementById('siteTitle').innerText = (lang==='en')?'Titan Mart':'টাইতান মার্ট';
+  document.getElementById('checkoutTitle').innerText = (lang==='en')?'Checkout':'চেকআউট';
+  document.getElementById('nameLabel').innerText = (lang==='en')?'Name:':'নাম:';
+  document.getElementById('phoneLabel').innerText = (lang==='en')?'Phone:':'ফোন:';
+  document.getElementById('altLabel').innerText = (lang==='en')?'Alt Phone:':'অল্টারনেট ফোন:';
+  document.getElementById('districtLabel').innerText = (lang==='en')?'District:':'জেলা:';
+  document.getElementById('thanaLabel').innerText = (lang==='en')?'Thana/Upazila:':'উপজেলা/থানা:';
+  document.getElementById('addressLabel').innerText = (lang==='en')?'Address:':'ঠিকানা:';
+  document.getElementById('productLabel').innerText = (lang==='en')?'Product:':'পণ্য:';
+  document.getElementById('qtyLabel').innerText = (lang==='en')?'Quantity:':'পরিমাণ:';
+  document.getElementById('deliveryLabel').innerHTML = (lang==='en')?'Delivery Charge: <span id="deliveryCharge">'+document.getElementById("deliveryCharge").innerText+'</span> Taka':'ডেলিভারি চার্জ: <span id="deliveryCharge">'+document.getElementById("deliveryCharge").innerText+'</span> টাকা';
+  document.getElementById('totalLabel').innerHTML = (lang==='en')?'Total: <span id="total">'+document.getElementById("total").innerText+'</span> Taka':'মোট: <span id="total">'+document.getElementById("total").innerText+'</span> টাকা';
+  document.getElementById('placeBtn').innerText = (lang==='en')?'Place Order via WhatsApp':'ওয়াটসঅ্যাপ অর্ডার দিন';
+}
+
+// ===== Full Bangladesh District + Upazila =====
 const bangladeshUpazilas = {
-  "Dhaka":["Dhamrai","Dohar","Keraniganj","Nawabganj","Savar","Adabar","Badda","Gulshan","Kafrul","Tejgaon","Uttara","Mirpur","Motijheel","Sher-e-Bangla Nagar"],
-  "Chattogram":["Anwara","Banshkhali","Boalkhali","Chandanaish","Fatikchhari","Hathazari","Lohagara","Mirsharai","Patiya","Rangunia","Sandwip","Satkania","Sitakunda","Cox's Bazar Sadar","Kutubdia","Maheshkhali","Ramu","Teknaf","Ukhia"],
-  "Rajshahi":["Bagha","Bagmara","Charghat","Durgapur","Godagari","Mohanpur","Paba","Puthia","Tanore"],
-  "Khulna":["Batiaghata","Dumuria","Dacope","Phultala","Koyra","Paikgachha","Rupsha","Terokhada"],
-  "Sylhet":["Beanibazar","Bishwanath","Golapganj","Gowainghat","Jaintiapur","Kanaighat","Sylhet Sadar"],
-  "Barishal":["Barishal Sadar","Babuganj","Banaripara","Gournadi","Agailjhara","Bakerganj","Hizla","Mehendiganj","Muladi","Uzirpur"],
-  "Rangpur":["Rangpur Sadar","Badarganj","Gangachhara","Mithapukur","Kaunia","Pirgachha","Taraganj"],
-  "Mymensingh":["Mymensingh Sadar","Bhaluka","Trishal","Phulpur","Muktagachha","Gaffargaon","Haluaghat","Ishwarganj","Nandail","Bishwamvarpur"],
-  "Bagerhat":["Bagerhat Sadar","Chitalmari","Fakirhat","Kachua","Mollahat","Mongla","Morrelganj","Rampal","Sarankhola"],
-  "Barguna":["Amtali","Bamna","Barguna Sadar","Betagi","Patharghata","Taltali"],
-  "Bhola":["Bhola Sadar","Burhanuddin","Char Fasson","Daulatkhan","Lalmohan","Manpura","Tazumuddin"],
-  "Bogra":["Adamdighi","Bogura Sadar","Dhunat","Dhupchanchia","Gabtali","Kahaloo","Nandigram","Shajahanpur","Sariakandi","Shibganj","Sherpur","Sonatala"],
-  "Brahmanbaria":["Akhaura","Ashuganj","B. Bazaar","Bancharampur","Nabinagar","Nasirnagar","Sarail"],
-  "Chandpur":["Chandpur Sadar","Faridganj","Haimchar","Haziganj","Kachua","Matlab Dakshin","Matlab Uttar","Shahrasti"],
-  "Comilla":["Barura","Brahmanpara","Burichang","Chandina","Chauddagram","Comilla Adarsha Sadar","Daudkandi","Laksam","Monoharganj","Nawabganj","Muradnagar","Titas"],
-  "Faridpur":["Alfadanga","Bhanga","Boalmari","Char Bhadrasan","Faridpur Sadar","Madhukhali","Nagarkanda","Saltha"],
-  "Feni":["Chhagalnaiya","Daganbhuiyan","Feni Sadar","Parshuram","Sonagazi"],
-  "Gaibandha":["Gaibandha Sadar","Palashbari","Sundarganj","Gobindaganj","Sadullapur"],
-  "Gazipur":["Gazipur Sadar","Kaliakair","Kapasia","Sreepur"],
-  "Gopalganj":["Gopalganj Sadar","Kotalipara","Muksudpur","Kashiani","Tungipara"],
-  "Habiganj":["Ajmiriganj","Bahubal","Baniyachong","Chunarughat","Habiganj Sadar","Lakhai","Madhabpur"],
-  "Jamalpur":["Baksiganj","Dewanganj","Islampur","Jamalpur Sadar","Melandah","Sarishabari","Sherpur"],
-  "Jessore":["Abhaynagar","Bagherpara","Jhikargachha","Jessore Sadar","Keshabpur","Manirampur","Sharsha"],
-  "Jhalokathi":["Jhalokathi Sadar","Kathalia","Nalchity","Rajapur"],
-  "Khagrachari":["Alikadam","Dighinala","Khagrachari Sadar","Lakshmichhari","Mahalchhari","Manikchhari","Panchhari","Ramgarh"],
-  "Kishoreganj":["Bajitpur","Itna","Karimganj","Katiadi","Kishoreganj Sadar","Mithamain","Nikli","Pakundia","Tarail","Bhairab"],
-  "Kurigram":["Nageshwari","Phulbari","Rajarhat","Ulipur","Kurigram Sadar"],
-  "Lalmonirhat":["Aditmari","Hatibandha","Kaliganj","Lalmonirhat Sadar","Patgram"],
-  "Madaripur":["Kalkini","Madaripur Sadar","Rajoir","Shibchar"],
-  "Magura":["Magura Sadar","Mohammadpur","Sreepur","Shalikha"],
-  "Manikganj":["Manikganj Sadar","Singair","Harirampur","Gior"],
+  "Dhaka":["Savar","Dhamrai","Keraniganj","Dohar","Nawabganj","Mirpur","Uttara","Dhanmondi","Gulshan","Tejgaon","Mohammadpur","Banani","Badda","Shahbagh","Rampura","Motijheel","Kafrul","Pallabi"],
+  "Gazipur":["Gazipur Sadar","Kaliakair","Kapasia","Sreepur","Tongi"],
+  "Faridpur":["Faridpur Sadar","Bhanga","Boalmari","Char Bhadrasan","Madhukhali","Alfadanga","Nagarkanda","Saltha"],
+  "Madaripur":["Madaripur Sadar","Kalkini","Shibchar","Rajoir"],
+  "Shariatpur":["Shariatpur Sadar","Bhedarganj","Damudya","Naria","Zanjira","Gosairhat"],
+  "Gopalganj":["Gopalganj Sadar","Kashiani","Muksudpur","Tungipara"],
+  "Tangail":["Tangail Sadar","Basail","Bhuapur","Delduar","Dhanbari","Gopalpur","Kalihati","Madhupur","Mirzapur","Nagarpur","Sakhipur","Bhuapur","Ghatail"],
+  "Manikganj":["Manikganj Sadar","Singair","Saturia","Harirampur","Shivalaya","Ghiashpur"],
+  "Munshiganj":["Munshiganj Sadar","Gazaria","Lohajang","Sreenagar","Sirajdikhan","Tongibari"],
+  "Narsingdi":["Narsingdi Sadar","Belabo","Monohardi","Raipura","Shibpur","Palash","Hossainpur"],
+  "Comilla":["Comilla Sadar","Debidwar","Chandina","Titas","Homna","Meghna","Daudkandi","Muradnagar","Barura","Brahmanpara","Chouddagram","Laksham","Monohorgonj"],
+  "Chattogram":["Anwara","Banshkhali","Boalkhali","Chandanaish","Fatikchhari","Hathazari","Lohagara","Patiya","Rangunia","Sandwip","Satkania","Sitakunda","Mirsharai","Raozan","Brahmanbaria","Cox's Bazar Sadar","Ukhiya","Teknaf","Ramu"],
+  "Cox's Bazar":["Cox's Bazar Sadar","Ukhia","Teknaf","Ramu","Chakaria","Maheshkhali","Kutubdia","Moheshkhali"],
+  "Khulna":["Khulna Sadar","Sonadanga","Daulatpur","Dacope","Phultala","Koyra","Paikgachha","Batiaghata","Dumuria","Terokhada","Rupsa","Dumuria"],
+  "Jessore":["Jessore Sadar","Sharsha","Manirampur","Keshabpur","Jhikargachha","Chougacha","Bagharpara","Abhaynagar"],
+  "Satkhira":["Satkhira Sadar","Assasuni","Debhata","Kaliganj","Kalaroa","Shyamnagar","Tala"],
+  "Bagerhat":["Bagerhat Sadar","Mollahat","Kachua","Mongla","Morrelganj","Rampal","Sarankhola"],
+  "Chuadanga":["Chuadanga Sadar","Alamdanga","Damurhuda","Jibannagar"],
   "Meherpur":["Meherpur Sadar","Mujibnagar","Gangni"],
-  "Moulvibazar":["Baralekha","Kamalganj","Kulaura","Moulvibazar Sadar","Rajnagar","Sreemangal"],
-  "Munshiganj":["Munshiganj Sadar","Lohajang","Sreenagar","Tongibari","Gazaria"],
-  "Narayanganj":["Araihazar","Bandar","Narayanganj Sadar","Rupganj","Sonargaon"],
-  "Narsingdi":["Belabo","Monohardi","Narsingdi Sadar","Palash","Raipura"],
-  "Narail":["Kalia","Lohagara","Narail Sadar"],
-  "Netrokona":["Atpara","Barhatta","Durgapur","Kendua","Kalmakanda","Netrokona Sadar","Purbadhala"],
-  "Nilphamari":["Dimla","Domar","Jaldhaka","Kishoreganj","Nilphamari Sadar","Saidpur"],
-  "Pabna":["Atghoria","Bera","Bhangura","Chatmohar","Ishwardi","Pabna Sadar","Santhia"],
-  "Patuakhali":["Dumki","Galachipa","Kalapara","Patuakhali Sadar","Rangabali","Zianagar"],
-  "Pirojpur":["Bhandaria","Kawkhali","Mathbaria","Pirojpur Sadar","Nazirpur","Nesarabad"],
-  "Rajbari":["Baliakandi","Goalanda","Pangsha","Rajbari Sadar"],
-  "Satkhira":["Assasuni","Debhata","Kaliganj","Satkhira Sadar","Tala"],
-  "Shariatpur":["Damudya","Gosairhat","Shariatpur Sadar","Naria","Bhedarganj"],
-  "Sherpur":["Jhenaigati","Nakla","Sherpur Sadar","Sreebardi"],
-  "Sirajganj":["Belkuchi","Chauhali","Kamarkhanda","Raiganj","Shahjadpur","Sirajganj Sadar","Ullahpara"],
-  "Sunamganj":["Bishwamvarpur","Chhatak","Derai","Dakshin Sunamganj","Sullah","Sunamganj Sadar","Tahirpur"],
-  "Tangail":["Basail","Ghatail","Mirzapur","Nagarpur","Sakhipur","Tangail Sadar"],
-  "Thakurgaon":["Boda","Ranisankail","Thakurgaon Sadar","Pirganj"]
+  "Magura":["Magura Sadar","Mohammadpur","Shalikha","Sreepur"],
+  "Kushtia":["Kushtia Sadar","Bheramara","Kumarkhali","Mirpur","Daulatpur"],
+  "Pirojpur":["Pirojpur Sadar","Bhandaria","Kawkhali","Nesarabad","Indurkani","Nazirpur","Zianagar","Mathbaria"],
+  "Barishal":["Barishal Sadar","Babuganj","Banaripara","Gournadi","Agailjhara","Bakerganj","Gaurnadi","Hizla","Mehendiganj","Muladi","Wazirpur","Barguna"],
+  "Bhola":["Bhola Sadar","Burhanuddin","Char Fasson","Daulatkhan","Lalmohan","Manpura","Tazumuddin"],
+  "Patuakhali":["Patuakhali Sadar","Bauphal","Dashmina","Galachipa","Kalapara","Mirzaganj","Rangabali","Dumki"],
+  "Rangpur":["Rangpur Sadar","Badarganj","Gangachhara","Mithapukur","Kaunia","Pirgachha","Taraganj","Gangachhara","Pirganj","Kurigram Sadar"],
+  "Dinajpur":["Dinajpur Sadar","Birampur","Birganj","Biral","Chirirbandar","Fulbari","Hakimpur","Kaharole","Khansama","Nawabganj","Parbatipur","Phulbari","Birganj"],
+  "Thakurgaon":["Thakurgaon Sadar","Pirganj","Ranisankail","Haripur"],
+  "Lalmonirhat":["Lalmonirhat Sadar","Aditmari","Hatibandha","Kaliganj","Patgram"],
+  "Nilphamari":["Nilphamari Sadar","Jaldhaka","Kishoreganj","Domar","Saidpur"],
+  "Sherpur":["Sherpur Sadar","Nakla","Nalitabari","Sreebardi","Jhenaigati","Shreebardi"],
+  "Moulvibazar":["Moulvibazar Sadar","Barlekha","Kulaura","Juri","Rajnagar","Sreemangal","Moulvibazar Sadar"],
+  "Habiganj":["Habiganj Sadar","Ajmiriganj","Baniachang","Bahubal","Chunarughat","Nabiganj","Lakhai"],
+  "Sunamganj":["Sunamganj Sadar","Bishwamvarpur","Chhatak","Dowarabazar","Jagannathpur","Shalla","Sullah","Tahirpur","Jamalganj","Derai"],
+  "Noakhali":["Noakhali Sadar","Begumganj","Chatkhil","Companiganj","Hatiya","Senbagh","Subarnachar","Sonaimuri"],
+  "Feni":["Feni Sadar","Daganbhuiyan","Fulgazi","Chhagalnaiya","Parshuram","Feni Sadar"],
+  "Lakshmipur":["Lakshmipur Sadar","Raipur","Ramganj","Ramgati","Kamalnagar"],
+  "Brahmanbaria":["Brahmanbaria Sadar","Ashuganj","Nabinagar","Sarail","Kasba","Bancharampur","Bijoynagar","Kasba"]
 };
 
-// ======= Populate District Dropdown =======
+// Populate District Dropdown
 const districtEl = document.getElementById("district");
 const thanaEl = document.getElementById("thana");
-Object.keys(bangladeshUpazilas).forEach(dist=>{
+Object.keys(bangladeshUpazilas).forEach(d=>{
   let opt=document.createElement("option");
-  opt.value=dist; opt.textContent=dist; districtEl.appendChild(opt);
+  opt.value=d; opt.textContent=d;
+  districtEl.appendChild(opt);
 });
 
-// ======= Update Thana Dropdown & Delivery =======
-function updateThanaAndDelivery(){
-  thanaEl.innerHTML='<option value="">Select Thana</option>';
-  let dist=districtEl.value;
-  if(bangladeshUpazilas[dist]){
-    bangladeshUpazilas[dist].forEach(t=>{
-      let opt=document.createElement("option");
-      opt.value=t; opt.textContent=t; thanaEl.appendChild(opt);
-    });
-  }
-  let charge=(dist==="Dhaka")?60:120;
-  document.getElementById("deliveryCharge").innerText=charge;
-  updateTotal();
-}
-
-// ======= Total Calculation =======
-function updateTotal(){
-  let p=parseInt(document.getElementById("product").value);
-  let q=parseInt(document.getElementById("qty").value);
-  let d=parseInt(document.getElementById("deliveryCharge").innerText);
-  document.getElementById("total").innerText=(p*q)+d;
-}
-
-// ======= Send Order with Invoice JPG =======
-function sendOrder(){
-  let name=document.getElementById("name").value;
-  let phone=document.getElementById("phone").value;
-  let altphone=document.getElementById("altphone").value;
-  let district=districtEl.value;
-  let thana=thanaEl.value;
-  let address=document.getElementById("address").value;
-  let productText=document.getElementById("product").options[document.getElementById("product").selectedIndex].text;
-  let qty=document.getElementById("qty").value;
-  let total=document.getElementById("total").innerText;
-  let deliveryCharge=document.getElementById("deliveryCharge").innerText;
-  if(!name || !phone || !district || !thana || !address){alert("Please fill all required fields!");return;}
-
-  // Short Order ID
-  const now=new Date();
-  const orderId="ORD"+String(now.getFullYear()).slice(2)+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0')+Math.floor(Math.random()*900+100);
-
-  // Fill invoice
-  document.getElementById("invOrderId").innerText=orderId;
-  document.getElementById("invName").innerText=name;
-  document.getElementById("invPhone").innerText=phone;
-  document.getElementById("invDistrict").innerText=district;
-  document.getElementById("invThana").innerText=thana;
-  document.getElementById("invAddress").innerText=address;
-  document.getElementById("invProduct").innerText=productText;
-  document.getElementById("invQty").innerText=qty;
-  document.getElementById("invDelivery").innerText=deliveryCharge;
-  document.getElementById("invTotal").innerText=total;
-
-  // Convert invoice to image
-  html2canvas(document.getElementById("invoice")).then(canvas=>{
-    let imgData=canvas.toDataURL("image/jpeg");
-    // Open image in new tab (user can share via WhatsApp)
-    window.open(imgData,"_blank");
-  });
-
-  // WhatsApp message (text)
-  let msg=encodeURIComponent(`🛒 New Order\nOrder ID: ${orderId}\nName: ${name}\nPhone: ${phone}\nDistrict: ${district}\nThana: ${thana}\nAddress: ${address}\nProduct: ${productText}\nQty: ${qty}\nDelivery: ${deliveryCharge} Taka\nTotal: ${total} Taka`);
-  window.open("https://wa.me/8801980236917?text="+msg,"_blank");
-
-  // Save to Google Sheet
-  fetch("WEB_APP_URL_HERE",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({orderId,name,phone,altphone,district,thana,address,product:productText,qty,delivery:deliveryCharge,total})});
-
-  if(confirm("WhatsApp খুলেছে। Message পাঠানোর পর OK চাপুন Success page এ যেতে।")){
-    window.location.href="success.html";
-  }
-}
-
-updateTotal();
-</script>
-</body>
-</html>
+// Get Product from URL
+const urlParams = new URLSearchParams(window.location.search);
+const prodName
