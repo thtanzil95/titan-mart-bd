@@ -118,8 +118,8 @@ function populateThana(){
 function calc(){
   const qty=parseInt(document.getElementById("qty").value);
   const dist=document.getElementById("district").value.trim();
-  let delivery=120;
-  if(dist==="ঢাকা"){delivery=60;}
+  let delivery=
+  if(dist==="Dhaka"){delivery=60;}
   document.getElementById("delivery").innerText=delivery;
   document.getElementById("total").innerText=price*qty+delivery;
 }
@@ -157,7 +157,7 @@ function placeOrder(){
   if(!name||!phone||!address){ alert("দয়া করে নাম, মোবাইল এবং ঠিকানা পূরণ করুন!"); return; }
 
   let delivery=120;
-  if(district==="ঢাকা"){delivery=60;}
+  if(district==="Dhaka"){delivery=60;}
   const total=price*qty+delivery;
   const id=orderID();
   const now=new Date();
@@ -199,3 +199,4 @@ function toggleLang(){
 </script>
 </body>
 </html>
+
