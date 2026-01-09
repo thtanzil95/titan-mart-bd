@@ -48,10 +48,10 @@ button:hover{background:#e04300;}
     <div class="info"><b id="pLabel">পণ্য:</b> <span id="product"></span></div>
     <div class="info"><b id="prLabel">মূল্য:</b> ৳ <span id="price"></span></div>
     <select id="qty">
-      <option value="1">পরিমাণ 1</option>
-      <option value="2">পরিমাণ 2</option>
-      <option value="3">পরিমাণ 3</option>
-      <option value="4">পরিমাণ 4</option>
+      <option value="1"> 1</option>
+      <option value="2"> 2</option>
+      <option value="5"> 5</option>
+      <option value="10"> 10</option>
     </select>
 
     <!-- Delivery & Total -->
@@ -69,7 +69,7 @@ const product = params.get("product");
 const price = parseInt(params.get("price"));
 document.getElementById("product").innerText = product;
 document.getElementById("price").innerText = price;
-document.getElementById("productImg").src = product==="Arc Lighter"?"images/arc-lighter.jpg":"images/nose-hair-trimmer.jpg";
+document.getElementById("productImg").src = product==="Arc Lighter"?"arc-lighter.jpg":"nose-hair-trimmer.jpg";
 
 // Unique Order ID
 function orderID(){ return "TM"+Math.floor(100000+Math.random()*900000); }
@@ -88,7 +88,8 @@ function placeOrder(){
     return;
   }
 
-  let delivery = (district.trim()==="ঢাকা")?60:120;
+  let delivery = (district.trim()==="ঢাকা")?60
+    
   const total = price*qty + delivery;
   const id = orderID();
 
@@ -189,3 +190,4 @@ document.getElementById("thanaSearch").oninput=function(){
 </script>
 </body>
 </html>
+
