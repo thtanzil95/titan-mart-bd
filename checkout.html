@@ -50,10 +50,10 @@ img.product-img{width:100%;max-height:260px;object-fit:contain;margin-top:15px;b
 
     <!-- Quantity -->
     <select id="qty">
-      <option value="1">পরিমাণ 1</option>
-      <option value="2">পরিমাণ 2</option>
-      <option value="3">পরিমাণ 3</option>
-      <option value="4">পরিমাণ 4</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
     </select>
 
     <!-- Delivery Charge -->
@@ -154,7 +154,7 @@ function populateThana(){
 function calc(){
   const qty=parseInt(document.getElementById("qty").value);
   const dist=document.getElementById("district").value;
-  let delivery = (dist==="ঢাকা")?60:120;
+  let delivery = (dist==="dhaka")?60:120;
   document.getElementById("delivery").innerText = delivery;
   const total = price*qty + delivery;
   document.getElementById("total").innerText = total;
@@ -182,3 +182,4 @@ document.getElementById("thanaSearch").oninput=function(){
 </script>
 </body>
 </html>
+
