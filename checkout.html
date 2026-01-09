@@ -70,17 +70,18 @@ button:hover{background:#e04300;}
 </div>
 
 <script>
-// Product details from URL
+// Fixed product info
 const params = new URLSearchParams(window.location.search);
-const product = params.get("product");
-const price = parseInt(params.get("price"));
-document.getElementById("product").innerText = product;
-
-// Product Image
+let product = params.get("product") || "Arc Lighter";
+let price = 0;
 let imgSrc = "";
-if(product==="Arc Lighter"){ imgSrc="arc-lighter.jpg"; }
-else if(product==="Nose Hair Trimmer"){ imgSrc="nose-hair-trimmer.jpg"; }
-else{ imgSrc="default.jpg"; }
+
+if(product==="Arc Lighter"){ price=850; imgSrc="arc-lighter.jpg"; }
+else if(product==="Nose Hair Trimmer"){ price=840; imgSrc="nose-hair-trimmer.jpg"; }
+else{ price=0; imgSrc="default.jpg"; }
+
+document.getElementById("product").innerText = product;
+document.getElementById("price").innerText = price;
 document.getElementById("productImg").src = imgSrc;
 
 // Unique Order ID
@@ -144,7 +145,7 @@ document.getElementById("thanaSearch").oninput=function(){
   });
 };
 
-// Place Order (WhatsApp direct, no popup)
+// Place Order (WhatsApp auto)
 function placeOrder(){
   const name=document.getElementById("name").value.trim();
   const phone=document.getElementById("phone").value.trim();
