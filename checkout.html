@@ -6,70 +6,74 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f0f0f5;}
-.container{max-width:700px;margin:40px auto;background:#fff;padding:25px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.1);}
+.container{max-width:700px;margin:40px auto;padding:0;}
+.lang-btn{ text-align:right; cursor:pointer; color:#ff4c00; font-weight:bold; margin-bottom:10px; }
+.modal{background:#fff;border-radius:12px;box-shadow:0 8px 25px rgba(0,0,0,0.2);padding:25px;animation:fadeIn 0.4s;}
 h2{text-align:center;color:#ff4c00;margin-bottom:20px;}
 input,select{width:100%;padding:12px;margin-top:10px;border:1px solid #ccc;border-radius:8px;transition:0.3s;}
 input:focus,select:focus{border-color:#ff4c00;outline:none;box-shadow:0 0 6px rgba(255,76,0,0.3);}
 button{width:100%;padding:15px;margin-top:20px;background:#ff4c00;color:#fff;border:none;font-size:17px;border-radius:8px;cursor:pointer;transition:0.3s;}
 button:hover{background:#e04300;}
-.lang-btn{ text-align:right; cursor:pointer; color:#ff4c00; font-weight:bold; margin-bottom:10px;}
-.info{margin-top:12px}
+.info{margin-top:12px;}
 img.product-img{width:100%;max-height:260px;object-fit:contain;margin-top:15px;border-radius:10px;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
 
 <div class="container">
   <div class="lang-btn" onclick="toggleLang()">EN</div>
-  <h2 id="title">চেকআউট</h2>
+  <div class="modal">
+    <h2 id="title">চেকআউট</h2>
 
-  <!-- Customer Info -->
-  <input id="name" placeholder="আপনার নাম" required>
-  <input id="phone" placeholder="মোবাইল নাম্বার" required>
-  <input id="address" placeholder="সম্পূর্ণ ঠিকানা" required>
+    <!-- Customer Info -->
+    <input id="name" placeholder="আপনার নাম" required>
+    <input id="phone" placeholder="মোবাইল নাম্বার" required>
+    <input id="address" placeholder="সম্পূর্ণ ঠিকানা" required>
 
-  <!-- District + Thana -->
-  <div class="info">
-    <b id="dLabel">জেলা:</b>
-    <input type="text" id="districtSearch" placeholder="জেলা খুঁজুন...">
-    <select id="district" required></select>
+    <!-- District + Thana -->
+    <div class="info">
+      <b id="dLabel">জেলা:</b>
+      <input type="text" id="districtSearch" placeholder="জেলা খুঁজুন...">
+      <select id="district" required></select>
+    </div>
+    <div class="info">
+      <b id="thLabel">থানা/উপজেলা:</b>
+      <input type="text" id="thanaSearch" placeholder="থানা/উপজেলা খুঁজুন...">
+      <select id="thana" required></select>
+    </div>
+
+    <!-- Product -->
+    <img id="productImg" class="product-img" src="" alt="Product Image">
+    <div class="info"><b id="pLabel">পণ্য:</b> <span id="product"></span></div>
+    <div class="info"><b id="prLabel">মূল্য:</b> ৳ <span id="price"></span></div>
+
+    <!-- Quantity -->
+    <select id="qty">
+      <option value="1">পরিমাণ 1</option>
+      <option value="2">পরিমাণ 2</option>
+      <option value="3">পরিমাণ 3</option>
+      <option value="4">পরিমাণ 4</option>
+    </select>
+
+    <!-- Delivery Charge -->
+    <div class="info"><b id="dChargeLabel">ডেলিভারি চার্জ:</b> ৳ <span id="delivery"></span></div>
+
+    <!-- Total -->
+    <div class="info" style="font-size:18px;font-weight:bold;"><b id="tLabel">মোট:</b> ৳ <span id="total"></span></div>
+
+    <button onclick="placeOrder()" id="btn">অর্ডার কনফার্ম করুন</button>
   </div>
-  <div class="info">
-    <b id="thLabel">থানা/উপজেলা:</b>
-    <input type="text" id="thanaSearch" placeholder="থানা/উপজেলা খুঁজুন...">
-    <select id="thana" required></select>
-  </div>
-
-  <!-- Product -->
-  <img id="productImg" class="product-img" src="" alt="Product Image">
-  <div class="info"><b id="pLabel">পণ্য:</b> <span id="product"></span></div>
-  <div class="info"><b id="prLabel">মূল্য:</b> ৳ <span id="price"></span></div>
-
-  <!-- Quantity -->
-  <select id="qty">
-    <option value="1">পরিমাণ 1</option>
-    <option value="2">পরিমাণ 2</option>
-    <option value="3">পরিমাণ 3</option>
-    <option value="4">পরিমাণ 4</option>
-  </select>
-
-  <!-- Delivery Charge -->
-  <div class="info"><b id="dChargeLabel">ডেলিভারি চার্জ:</b> ৳ <span id="delivery"></span></div>
-
-  <!-- Total -->
-  <div class="info" style="font-size:18px;font-weight:bold;"><b id="tLabel">মোট:</b> ৳ <span id="total"></span></div>
-
-  <button onclick="placeOrder()" id="btn">অর্ডার কনফার্ম করুন</button>
 </div>
 
 <script>
-// Product details
+// Product details from URL
 const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
 const price = parseInt(params.get("price"));
 document.getElementById("product").innerText = product;
 document.getElementById("price").innerText = price;
-document.getElementById("productImg").src = product==="Arc Lighter"?"images/arc-lighter.jpg":"images/nose-hair-trimmer.jpg";
+document.getElementById("productImg").src = product==="Arc Lighter"?"arc-lighter.jpg":"nose-hair-trimmer.jpg";
 
 // Unique Order ID
 function orderID(){ return "TM"+Math.floor(100000+Math.random()*900000); }
@@ -173,9 +177,8 @@ document.getElementById("thanaSearch").oninput=function(){
   thSel.innerHTML="";
   const dist=document.getElementById("district").value;
   (upazilaData[dist]||[]).filter(t=>t.toLowerCase().includes(f))
-    .forEach(t=>{let o=document.createElement("option"); o.value=t; o.text=t; thSel.add(o);});
+    .forEach(t=>{let o=document.createElement("option"); o.text=t; o.value=t; thSel.add(o);});
 };
 </script>
-
 </body>
 </html>
