@@ -6,156 +6,176 @@
 <title>Titan Mart BD | Checkout</title>
 <style>
 body{font-family:Arial,sans-serif;background:#f7f7f7;margin:0;padding:20px;}
-header{background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:24px;display:flex;justify-content:space-between;align-items:center;}
-.lang-btn{background:#fff;color:#ff4c00;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;}
-h2{text-align:center;color:#ff4c00;}
-form{max-width:750px;margin:auto;background:#fff;padding:25px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.15);}
-input,select{width:100%;padding:10px;margin:8px 0;border-radius:5px;border:1px solid #ccc;}
-img.product-img{width:150px;height:auto;margin:10px 0;display:block;}
-button{background:#ff4c00;color:#fff;padding:12px;border:none;border-radius:5px;font-size:16px;width:100%;cursor:pointer;margin-top:10px;}
-button:hover{background:#e24300;}
-.total{font-weight:bold;font-size:18px;margin-top:10px;}
+header{background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:24px;}
+form{max-width:750px;margin:auto;background:#fff;padding:20px;border-radius:10px;}
+input,select{width:100%;padding:10px;margin-top:10px;border-radius:5px;border:1px solid #ccc;}
+button{background:#ff4c00;color:#fff;padding:12px;border:none;border-radius:5px;width:100%;cursor:pointer;margin-top:15px;}
+img.product-img{width:150px;margin-top:10px;}
 </style>
 </head>
 <body>
 
-<header>
-  <div id="siteTitle">Titan Mart BD</div>
-  <button class="lang-btn" onclick="toggleLang()">বাংলা</button>
-</header>
-
-<h2 id="checkoutTitle">Checkout</h2>
+<header>Titan Mart BD Checkout</header>
 
 <form id="checkoutForm">
-  <label id="nameLabel">Name:</label><input type="text" id="name" placeholder="Your Name" required>
-  <label id="phoneLabel">Phone:</label><input type="text" id="phone" placeholder="Phone Number" required>
-  <label id="altLabel">Alt Phone:</label><input type="text" id="altphone" placeholder="Alternate Phone">
+  <input type="text" id="name" placeholder="Your Name" required>
+  <input type="text" id="phone" placeholder="Phone Number" required>
 
-  <label id="districtLabel">District:</label>
-  <select id="district" onchange="updateThanaAndDelivery()" required>
+  <select id="district" onchange="loadUpazilas()" required>
     <option value="">Select District</option>
+    <option>Dhaka</option>
+    <option>Gazipur</option>
+    <option>Narayanganj</option>
+    <option>Munshiganj</option>
+    <option>Manikganj</option>
+    <option>Kishoreganj</option>
+    <option>Gopalganj</option>
+    <option>Faridpur</option>
+    <option>Rajbari</option>
+    <option>Shariatpur</option>
+    <option>Bhola</option>
+    <option>Patuakhali</option>
+    <option>Pirojpur</option>
+    <option>Barguna</option>
+    <option>Barishal</option>
+    <option>Jhalokathi</option>
+    <option>Chattogram</option>
+    <option>Cox's Bazar</option>
+    <option>Feni</option>
+    <option>Noakhali</option>
+    <option>Lakshmipur</option>
+    <option>Brahmanbaria</option>
+    <option>Chandpur</option>
+    <option>Khagrachhari</option>
+    <option>Rangamati</option>
+    <option>Sylhet</option>
+    <option>Moulvibazar</option>
+    <option>Sunamganj</option>
+    <option>Rangpur</option>
+    <option>Dinajpur</option>
+    <option>Nilphamari</option>
+    <option>Kurigram</option>
+    <option>Lalmonirhat</option>
+    <option>Gaibandha</option>
+    <option>Panchagarh</option>
+    <option>Thakurgaon</option>
+    <option>Sirajganj</option>
+    <option>Pabna</option>
+    <option>Bogra</option>
+    <option>Joypurhat</option>
+    <option>Naogaon</option>
+    <option>Natore</option>
+    <option>Nawabganj</option>
+    <option>Rajshahi</option>
+    <option>Chapainawabganj</option>
+    <option>Bagerhat</option>
+    <option>Khulna</option>
+    <option>Jessore</option>
+    <option>Satkhira</option>
+    <option>Jhenaidah</option>
+    <option>Magura</option>
+    <option>Meherpur</option>
+    <option>Kushtia</option>
+    <option>Chuadanga</option>
+    <option>Faridpur</option>
+    <option>Gazipur</option>
+    <option>Narsingdi</option>
+    <option>Comilla</option>
+    <option>Brahmanbaria</option>
+    <option>Feni</option>
+    <option>Chandpur</option>
+    <option>Noakhali</option>
+    <option>Habiganj</option>
+    <option>Maulvibazar</option>
+    <option>Sunamganj</option>
+    <option>Netrokona</option>
+    <option>Mymensingh</option>
   </select>
 
-  <label id="thanaLabel">Thana/Upazila:</label>
   <select id="thana" required>
-    <option value="">Select Thana</option>
+    <option value="">Select Thana/Upazila</option>
   </select>
 
-  <label id="addressLabel">Address:</label><input type="text" id="address" placeholder="Full Address" required>
+  <input type="text" id="address" placeholder="Address" required>
+  
+  <select id="product" onchange="updateImage()" required>
+    <option value="850" data-img="https://i.postimg.cc/1Xv6RC5d/arc-lighter.jpg">Arc Lighter - 850 Taka</option>
+    <option value="840" data-img="https://i.postimg.cc/LX7M6CN8/nose-trimmer.jpg">Nose Hair Trimmer - 840 Taka</option>
+  </select>
 
-  <label id="productLabel">Product:</label>
-  <img id="productImg" class="product-img" src="" alt="Product Image">
-  <select id="product" onchange="updateProductImage(); updateTotal();"></select>
+  <select id="qty" onchange="updateTotal()">
+    <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+    <option value="4">4</option><option value="5">5</option>
+  </select>
 
-  <label id="qtyLabel">Quantity:</label><input type="number" id="qty" value="1" min="1" onchange="updateTotal()">
+  <img id="productImg" class="product-img" src="https://i.postimg.cc/1Xv6RC5d/arc-lighter.jpg">
 
-  <div id="deliveryLabel">Delivery Charge: <span id="deliveryCharge">0</span> Taka</div>
-  <div class="total" id="totalLabel">Total: <span id="total">0</span> Taka</div>
+  <div>Delivery: <span id="deliveryCharge">0</span> Taka</div>
+  <div>Total: <span id="total">0</span> Taka</div>
 
-  <button type="button" onclick="placeOrder()" id="placeBtn">Place Order via WhatsApp</button>
+  <button type="button" onclick="placeOrder()">Place Order via WhatsApp</button>
 </form>
 
 <script>
-// ===== Language Toggle =====
-let lang='en';
-function toggleLang(){
-  lang = (lang==='en')?'bn':'en';
-  document.querySelector('.lang-btn').innerText = (lang==='en')?'বাংলা':'English';
-  document.getElementById('siteTitle').innerText = (lang==='en')?'Titan Mart BD':'টাইটান মার্ট বিডি';
-  document.getElementById('checkoutTitle').innerText = (lang==='en')?'Checkout':'চেকআউট';
-  document.getElementById('nameLabel').innerText = (lang==='en')?'Name:':'নাম:';
-  document.getElementById('phoneLabel').innerText = (lang==='en')?'Phone:':'ফোন:';
-  document.getElementById('altLabel').innerText = (lang==='en')?'Alt Phone:':'অল্টারনেট ফোন:';
-  document.getElementById('districtLabel').innerText = (lang==='en')?'District:':'জেলা:';
-  document.getElementById('thanaLabel').innerText = (lang==='en')?'Thana/Upazila:':'উপজেলা/থানা:';
-  document.getElementById('addressLabel').innerText = (lang==='en')?'Address:':'ঠিকানা:';
-  document.getElementById('productLabel').innerText = (lang==='en')?'Product:':'পণ্য:';
-  document.getElementById('qtyLabel').innerText = (lang==='en')?'Quantity:':'পরিমাণ:';
-  document.getElementById('deliveryLabel').innerHTML = (lang==='en')?'Delivery Charge: <span id="deliveryCharge">'+document.getElementById("deliveryCharge").innerText+'</span> Taka':'ডেলিভারি চার্জ: <span id="deliveryCharge">'+document.getElementById("deliveryCharge").innerText+'</span> টাকা';
-  document.getElementById('totalLabel').innerHTML = (lang==='en')?'Total: <span id="total">'+document.getElementById("total").innerText+'</span> Taka':'মোট: <span id="total">'+document.getElementById("total").innerText+'</span> টাকা';
-  document.getElementById('placeBtn').innerText = (lang==='en')?'Place Order via WhatsApp':'ওয়াটসঅ্যাপ অর্ডার দিন';
-}
+// Load Bangladesh upazilas from JSON
+let upazilaData = {};
+fetch("bangladesh_upazilas.json")
+  .then(resp => resp.json())
+  .then(data => upazilaData = data);
 
-// ===== Full 64 District + All Upazila/Thana =====
-const bangladeshAreas = {
-  "Dhaka":["Dhamrai","Dohar","Keraniganj","Nawabganj","Savar","Uttara","Mirpur","Dhanmondi","Gulshan","Banani","Tejgaon","Motijheel","Kafrul","Pallabi"],
-  "Gazipur":["Gazipur Sadar","Kaliganj","Kapasia","Sreepur","Tongi","Kaliakoir"],
-  "Narayanganj":["Arahazar","Bandar","Sonargaon","Fatulla","Rupganj"],
-  "Chattogram":["Anwara","Banshkhali","Boalkhali","Chandanaish","Fatikchhari","Hathazari","Lohagara","Patiya","Rangunia","Sandwip","Satkania","Sitakunda","Mirsharai","Raozan"],
-  "Khulna":["Khulna Sadar","Sonadanga","Daulatpur","Dacope","Phultala","Koyra","Paikgachha","Batiaghata","Dumuria","Terokhada","Rupsa"],
-  "Jessore":["Jessore Sadar","Sharsha","Manirampur","Keshabpur","Jhikargachha","Bagharpara","Abhaynagar"],
-  "Barishal":["Barishal Sadar","Babuganj","Bakerganj","Banaripara","Gournadi","Hizla","Mehendiganj","Muladi","Wazirpur"],
-  "Sylhet":["Sylhet Sadar","Beanibazar","Bishwanath","Companiganj","Dakshin Surma","Fenchuganj","Golapganj","Gowainghat","Jaintiapur","Kanaighat","Zakiganj"],
-  "Rangpur":["Rangpur Sadar","Badarganj","Kaunia","Gangachara","Pirgachha","Mithapukur","Thakurgaon Sadar","Dinajpur Sadar","Kurigram Sadar","Nilphamari Sadar","Lalmonirhat Sadar"],
-  "Mymensingh":["Mymensingh Sadar","Bhaluka","Dhobaura","Fulbaria","Gafargaon","Gauripur","Haluaghat","Ishwarganj","Muktagachha","Phulpur","Trishal"],
-  "Rajshahi":["Rajshahi Sadar","Bagha","Bagmara","Charghat","Durgapur","Godagari","Paba","Puthia","Tanore"],
-  "Tangail":["Tangail Sadar","Basail","Bhuapur","Delduar","Dhanbari","Gopalpur","Kalihati","Madhupur","Mirzapur","Nagarpur","Sakhipur"],
-  "Comilla":["Comilla Sadar","Debidwar","Chandina","Titas","Homna","Meghna","Daudkandi","Muradnagar","Barura","Brahmanpara","Laksham","Monohorgonj"],
-  "Narsingdi":["Narsingdi Sadar","Belabo","Monohardi","Raipura","Shibpur","Palash","Hossainpur"]
-  // Full 64 district + ~495 upazila continue…
-};
-
-// Populate District Dropdown
-const districtEl = document.getElementById("district");
-const thanaEl = document.getElementById("thana");
-Object.keys(bangladeshAreas).forEach(d=>{
-  let opt=document.createElement("option"); opt.value=d; opt.textContent=d; districtEl.appendChild(opt);
-});
-
-// ===== Product from URL =====
-const params = new URLSearchParams(window.location.search);
-let pName=params.get('product')||"Arc Lighter";
-let pPrice=params.get('price')||"850";
-let pImage=params.get('image')||"https://via.placeholder.com/150";
-const prodEl=document.getElementById("product");
-prodEl.innerHTML = `<option value="${pPrice}" data-img="${pImage}">${pName} - ${pPrice} Taka</option>`;
-document.getElementById("productImg").src = pImage;
-
-// Update product image when selection changes
-function updateProductImage(){
-  const img = prodEl.options[prodEl.selectedIndex].dataset.img;
-  document.getElementById("productImg").src = img;
-}
-
-// Update Thana + Delivery
-function updateThanaAndDelivery(){
-  thanaEl.innerHTML = "<option value=''>Select Thana</option>";
-  let d = districtEl.value;
-  if(bangladeshAreas[d]){
-    bangladeshAreas[d].forEach(u=>{
+// Populate upazilas
+function loadUpazilas(){
+  const dist = document.getElementById("district").value;
+  const thanaEl = document.getElementById("thana");
+  thanaEl.innerHTML = "<option>Select Thana</option>";
+  if(upazilaData[dist]){
+    upazilaData[dist].forEach(u=>{
       let o=document.createElement("option");
-      o.value=u; o.textContent=u; thanaEl.appendChild(o);
+      o.value=u; o.textContent=u;
+      thanaEl.appendChild(o);
     });
   }
-  let charge = (d==="Dhaka")?60:120;
-  document.getElementById("deliveryCharge").innerText = charge;
+  updateDelivery();
+}
+
+// Update product image
+function updateImage(){
+  let img = document.getElementById("product").selectedOptions[0].dataset.img;
+  document.getElementById("productImg").src = img;
   updateTotal();
 }
 
-// Update Total
+// Delivery + total
+function updateDelivery(){
+  let dist=document.getElementById("district").value;
+  document.getElementById("deliveryCharge").innerText = (dist==="Dhaka")?60:120;
+  updateTotal();
+}
 function updateTotal(){
-  let price=parseInt(prodEl.value||0);
-  let qty=parseInt(document.getElementById("qty").value);
-  let del=parseInt(document.getElementById("deliveryCharge").innerText);
+  let price = parseInt(document.getElementById("product").value);
+  let qty = parseInt(document.getElementById("qty").value);
+  let del = parseInt(document.getElementById("deliveryCharge").innerText);
   document.getElementById("total").innerText = (price*qty)+del;
 }
 
-// Place Order
+// WhatsApp Order
 function placeOrder(){
   let name=document.getElementById("name").value;
   let phone=document.getElementById("phone").value;
-  let alt=document.getElementById("altphone").value;
-  let district=districtEl.value;
-  let thana=thanaEl.value;
+  let district=document.getElementById("district").value;
+  let thana=document.getElementById("thana").value;
   let address=document.getElementById("address").value;
-  let productText=prodEl.options[prodEl.selectedIndex].text;
+  let productText=document.getElementById("product").selectedOptions[0].text;
+  let qty=document.getElementById("qty").value;
   let total=document.getElementById("total").innerText;
-  if(!name||!phone||!district||!thana||!address){alert("Fill all fields");return;}
-  const now=new Date();
-  let orderId="ORD"+now.getFullYear().toString().slice(2)+("0"+(now.getMonth()+1)).slice(-2)+("0"+now.getDate()).slice(-2)+Math.floor(Math.random()*900+100);
-  let msg=`🛒 Order ID: ${orderId}\nName: ${name}\nPhone: ${phone}\nAlt: ${alt}\nDistrict: ${district}\nThana: ${thana}\nAddress: ${address}\nProduct: ${productText}\nTotal: ${total} Taka`;
+
+  let msg = `Order:\nName: ${name}\nPhone: ${phone}\nDistrict: ${district}\nThana: ${thana}\nAddress: ${address}\nProduct: ${productText}\nQuantity: ${qty}\nTotal: ${total}`;
   window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg),"_blank");
 }
+
+// Initialize totals
+updateTotal();
 </script>
+
 </body>
 </html>
