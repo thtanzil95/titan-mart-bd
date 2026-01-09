@@ -1,33 +1,163 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Titan Mart BD - ইলেকট্রনিক্স ও ন্যানো প্রোডাক্ট</title>
-    <link rel="stylesheet" href="style.css"> </head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Titan Mart BD | Online Shopping</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f2f2f2}
+
+/* Header */
+.header{
+background:#ff4c00;color:#fff;
+display:flex;align-items:center;
+justify-content:space-between;
+padding:12px 15px
+}
+.logo{font-size:22px;font-weight:bold}
+.logo span{color:#000}
+.search{
+width:60%;padding:8px;
+border:none;border-radius:4px
+}
+
+/* Nav */
+.nav{
+background:#fff;padding:10px;
+display:flex;gap:15px;
+overflow-x:auto
+}
+.nav a{
+text-decoration:none;
+font-weight:bold;
+color:#333;white-space:nowrap
+}
+
+/* Banner */
+.banner{
+background:#ffe5d9;
+text-align:center;
+padding:30px;
+font-size:26px;
+font-weight:bold;
+color:#ff4c00
+}
+
+/* Products */
+.products{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+gap:15px;
+padding:15px
+}
+.card{
+background:#fff;
+border-radius:8px;
+padding:10px;
+position:relative;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+transition:0.3s
+}
+.card:hover{transform:scale(1.04)}
+.card img{
+width:100%;
+height:220px;
+object-fit:cover;
+border-radius:6px
+}
+.card h3{font-size:16px;margin:8px 0}
+.price{
+color:#ff4c00;
+font-weight:bold;
+font-size:18px
+}
+.badge{
+position:absolute;
+top:10px;left:10px;
+background:red;
+color:#fff;
+padding:4px 8px;
+font-size:12px;
+border-radius:4px
+}
+.rating{color:#ffb400;font-size:14px}
+.btn{
+display:block;
+margin-top:8px;
+text-align:center;
+background:#ff4c00;
+color:#fff;
+padding:10px;
+border-radius:6px;
+text-decoration:none;
+font-weight:bold
+}
+
+/* Footer */
+footer{
+background:#222;
+color:#fff;
+text-align:center;
+padding:15px;
+font-size:14px
+}
+</style>
+</head>
+
 <body>
-    <header>
-        <div class="nav-container">
-            <h1>Titan Mart BD</h1>
-            <button id="view-cart-btn">কার্ট দেখুন (<span id="cart-count">0</span>)</button>
-        </div>
-    </header>
-    <main class="container">
-        <h2>আমাদের পণ্য</h2>
-        <div id="product-list" class="product-grid">
-            </div>
 
-        <div id="cart-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-btn">&times;</span>
-                <h3>শপিং কার্ট</h3>
-                <div id="cart-items">
-                    </div>
-                <p>মোট দাম: ৳ <span id="cart-total">0</span></p>
-                <button id="checkout-btn" class="btn checkout-btn">চেকআউট করুন</button>
-            </div>
-        </div>
-    </main>
+<!-- Header -->
+<div class="header">
+  <div class="logo">Titan<span>Mart</span></div>
+  <input class="search" placeholder="Search products">
+</div>
 
-    <script src="script.js"></script> </body>
+<!-- Navigation -->
+<div class="nav">
+  <a>Electronics</a>
+  <a>Gadgets</a>
+  <a>Home</a>
+  <a>Personal Care</a>
+  <a>Offers</a>
+</div>
+
+<!-- Banner -->
+<div class="banner">
+🔥 BIG SALE – Trusted Online Shopping 🔥
+</div>
+
+<!-- Products -->
+<section class="products">
+
+<!-- Product 1 -->
+<div class="card">
+  <span class="badge">HOT</span>
+  <img src="arc-lighter.jpg" alt="Arc Lighter">
+  <h3>Rechargeable Arc Lighter</h3>
+  <p class="price">৳850</p>
+  <p class="rating">⭐⭐⭐⭐☆</p>
+  <a href="product.html" class="btn">View Details</a>
+</div>
+
+<!-- Product 2 -->
+<div class="card">
+  <span class="badge">BEST</span>
+  <img src="nose-hair-trimmer.jpg" alt="Nose Hair Trimmer">
+  <h3>Nose Hair Trimmer</h3>
+  <p class="price">৳840</p>
+  <p class="rating">⭐⭐⭐⭐☆</p>
+  <a href="product.html" class="btn">View Details</a>
+</div>
+
+</section>
+
+<!-- Footer -->
+<footer>
+Payment: bKash / Nagad / Cash on Delivery<br>
+Support: 01980236917
+</footer>
+
+</body>
 </html>
