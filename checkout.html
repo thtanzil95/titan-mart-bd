@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{margin:0;font-family:Arial;background:#f5f5f5}
-.container{max-width:650px;margin:30px auto;background:#fff;padding:20px;border-radius:8px}
+.container{max-width:600px;margin:30px auto;background:#fff;padding:20px;border-radius:8px}
 h2{text-align:center}
-input,select{width:100%;padding:10px;margin-top:10px;border:1px solid #ccc;border-radius:5px}
+input,select{width:100%;padding:10px;margin-top:10px}
 button{width:100%;padding:12px;margin-top:15px;background:#ff4c00;color:#fff;border:none;font-size:16px;border-radius:5px;cursor:pointer}
-.lang-btn{ text-align:right; cursor:pointer; color:#ff4c00; font-weight:bold; }
+.lang-btn{text-align:right;cursor:pointer;color:#ff4c00;font-weight:bold}
 .info{margin-top:10px}
 img.product-img{width:100%;max-height:250px;object-fit:contain;margin-top:10px;border-radius:5px}
 </style>
@@ -44,7 +44,7 @@ img.product-img{width:100%;max-height:250px;object-fit:contain;margin-top:10px;b
   </div>
 
   <div class="info">
-    <b id="thLabel">থানা/উপজেলা:</b>
+    <b id="tLabel2">থানা/উপজেলা:</b>
     <input type="text" id="thanaSearch" placeholder="থানা/উপজেলা খুঁজুন...">
     <select id="thana"></select>
   </div>
@@ -53,33 +53,34 @@ img.product-img{width:100%;max-height:250px;object-fit:contain;margin-top:10px;b
 </div>
 
 <script>
-// Product image + price
+// Products image & price
 const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
 const price = parseInt(params.get("price"));
+
 document.getElementById("product").innerText = product;
 document.getElementById("productImg").src = product==="Arc Lighter"?"images/arc-lighter.jpg":"images/nose-hair-trimmer.jpg";
 
-// Total calc
-function calc(){ document.getElementById("total").innerText = price * document.getElementById("qty").value; }
+// Quantity & total
+function calc(){document.getElementById("total").innerText = price*document.getElementById("qty").value;}
 calc();
 document.getElementById("qty").onchange = calc;
 
 // Unique order ID
-function orderID(){ return "TM" + Math.floor(100000 + Math.random()*900000); }
+function orderID(){return "TM"+Math.floor(100000+Math.random()*900000);}
 
-// WhatsApp Order
+// WhatsApp order
 function placeOrder(){
-  const id = orderID();
-  const name = document.getElementById("name").value;
-  const phone = document.getElementById("phone").value;
-  const address = document.getElementById("address").value;
-  const qty = document.getElementById("qty").value;
-  const total = document.getElementById("total").innerText;
-  const district = document.getElementById("district").value;
-  const thana = document.getElementById("thana").value;
+  const id=orderID();
+  const name=document.getElementById("name").value;
+  const phone=document.getElementById("phone").value;
+  const address=document.getElementById("address").value;
+  const qty=document.getElementById("qty").value;
+  const total=document.getElementById("total").innerText;
+  const district=document.getElementById("district").value;
+  const thana=document.getElementById("thana").value;
 
-  const msg =
+  const msg=
 `Order ID: ${id}
 Name: ${name}
 Phone: ${phone}
@@ -90,10 +91,10 @@ Product: ${product}
 Quantity: ${qty}
 Total: ৳${total}`;
 
-  window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg), "_blank");
+  window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg),"_blank");
 }
 
-// Bangla / English toggle
+// Bangla/English toggle
 let bn=true;
 function toggleLang(){
   bn=!bn;
@@ -104,68 +105,56 @@ function toggleLang(){
   document.getElementById("pLabel").innerText=bn?"পণ্য:":"Product:";
   document.getElementById("tLabel").innerText=bn?"মোট:":"Total:";
   document.getElementById("dLabel").innerText=bn?"জেলা:":"District:";
-  document.getElementById("thLabel").innerText=bn?"থানা/উপজেলা:":"Thana/Upazila:";
+  document.getElementById("tLabel2").innerText=bn?"থানা/উপজেলা:":"Thana/Upazila:";
   document.getElementById("btn").innerText=bn?"অর্ডার কনফার্ম করুন":"Confirm Order";
   document.querySelector(".lang-btn").innerText=bn?"EN":"BN";
 }
 
-// 📍 Districts + Upazilas JSON (complete)
-const bangladeshAreas = {
-"Dhaka":["Dhaka Sadar","Dhamrai","Dohar","Keraniganj","Nawabganj","Savar"],
-"Gazipur":["Gazipur Sadar","Kaliganj","Kapasia","Sreepur"],
-"Narayanganj":["Narayanganj Sadar","Fatulla","Arahazar","Sonargaon","Rupganj"],
-// ... rest of all 64 districts & all their upazilas should be added here
-"Chattogram":["Anwara","Banshkhali","Boalkhali","Chandanaish","Fatikchhari","Hathazari","Lohagara","Patiya","Rangunia","Sandwip","Satkania","Sitakunda","Mirsharai","Raozan"],
-"Khulna":["Khulna Sadar","Batiaghata","Dacope","Dumuria","Paikgachha","Phultala","Koyra","Terokhada"],
-// (etc. — this list must include full 64 district with all upazilas)
+// District & Thana data (Demo subset, real version would include 64 districts + all thana)
+const districts = {
+  "ঢাকা":["ধানমন্ডি","গুলশান","কাফরুল","মিরপুর"],
+  "চট্টগ্রাম":["পটিয়া","কর্ণফুলী","হালিশহর","চান্দগাঁও"]
+  // Add all 64 districts + all their thana here
 };
 
-// Populate district
+// Populate District
 const districtSel=document.getElementById("district");
-for(let d in bangladeshAreas){
-  let o=document.createElement("option");
-  o.value=d; o.text=d;
-  districtSel.add(o);
-}
+for(let d in districts){let o=document.createElement("option");o.value=d;o.text=d;districtSel.add(o);}
 
-// Populate thana when district changes
+// Populate Thana based on district
 function populateThana(){
-  const thanaSel = document.getElementById("thana");
-  thanaSel.innerHTML = "";
-  let list = bangladeshAreas[districtSel.value] || [];
-  list.forEach(t=>{
+  const thSel=document.getElementById("thana");
+  thSel.innerHTML="";
+  const ths=districts[districtSel.value]||[];
+  ths.forEach(th=>{
     let o=document.createElement("option");
-    o.value=t; o.text=t;
-    thanaSel.add(o);
+    o.value=th;o.text=th;
+    thSel.add(o);
   });
 }
-districtSel.onchange = function(){
-  populateThana();
-};
+districtSel.onchange=populateThana;
+populateThana(); // initial
 
-// Search filters for district/thana
+// Search filters
 document.getElementById("districtSearch").oninput=function(){
-  let filter=this.value.toLowerCase();
+  const filter=this.value.toLowerCase();
   districtSel.innerHTML="";
-  for(let d in bangladeshAreas){
+  for(let d in districts){
     if(d.toLowerCase().includes(filter)){
-      let o=document.createElement("option");o.value=d;o.text=d; districtSel.add(o);
+      let o=document.createElement("option");o.value=d;o.text=d;districtSel.add(o);
     }
   }
   populateThana();
 };
 document.getElementById("thanaSearch").oninput=function(){
-  let filter=this.value.toLowerCase();
-  let thanaSel=document.getElementById("thana");
-  thanaSel.innerHTML="";
-  let list = bangladeshAreas[districtSel.value] || [];
-  list.filter(t=>t.toLowerCase().includes(filter)).forEach(t=>{
-    let o=document.createElement("option");o.value=t;o.text=t;
-    thanaSel.add(o);
+  const filter=this.value.toLowerCase();
+  const thSel=document.getElementById("thana");
+  thSel.innerHTML="";
+  const ths=districts[districtSel.value]||[];
+  ths.filter(t=>t.toLowerCase().includes(filter)).forEach(th=>{
+    let o=document.createElement("option");o.value=th;o.text=th;thSel.add(o);
   });
 };
-
-populateThana();
 </script>
 
 </body>
