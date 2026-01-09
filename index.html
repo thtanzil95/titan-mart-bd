@@ -2,73 +2,40 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Titan Mart BD</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{font-family:Arial,sans-serif;margin:0;background:#f7f7f7;}
-header{background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:24px;display:flex;justify-content:space-between;align-items:center;}
-.lang-btn{background:#fff;color:#ff4c00;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;}
-.products{display:flex;flex-wrap:wrap;justify-content:center;padding:20px;}
-.product{background:#fff;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,0.15);margin:10px;width:200px;padding:15px;text-align:center;}
-.product img{width:100%;border-radius:10px;}
-.product button{background:#ff4c00;color:#fff;padding:10px;border:none;border-radius:5px;margin-top:10px;cursor:pointer;width:100%;}
-.product button:hover{background:#e24300;}
-.contact-icons{position:fixed;right:20px;bottom:20px;display:flex;flex-direction:column;}
-.contact-icons a{margin:5px;text-decoration:none;font-size:28px;}
-footer{background:#333;color:#fff;text-align:center;padding:10px;margin-top:20px;}
+body{margin:0;font-family:Arial;background:#f5f5f5}
+header{background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:22px}
+.container{max-width:1100px;margin:auto;padding:20px;
+display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.card{background:#fff;padding:15px;border-radius:8px;text-align:center}
+.card img{width:100%;max-height:220px;object-fit:contain}
+.price{color:#ff4c00;font-size:18px;font-weight:bold}
+.btn{display:inline-block;margin-top:10px;padding:10px 15px;
+background:#ff4c00;color:#fff;text-decoration:none;border-radius:5px}
 </style>
 </head>
+
 <body>
+<header>Titan Mart BD</header>
 
-<header>
-  <div id="siteTitle">Titan Mart BD</div>
-  <button class="lang-btn" onclick="toggleLang()">বাংলা</button>
-</header>
+<div class="container">
 
-<div class="products" id="productContainer">
-  <div class="product">
-    <img src="https://i.postimg.cc/1Xv6RC5d/arc-lighter.jpg" alt="Arc Lighter">
-    <h3 class="prod-name">Arc Lighter</h3>
-    <p class="prod-price">Price: 850 Taka</p>
-    <button onclick="location.href='checkout.html?product=Arc Lighter&price=850'" class="buy-btn">Buy Now</button>
+  <div class="card">
+    <img src="images/arc-lighter.jpg">
+    <h3>Arc Lighter</h3>
+    <div class="price">৳ 850</div>
+    <a class="btn" href="checkout.html?product=Arc%20Lighter&price=850">Buy Now</a>
   </div>
-  <div class="product">
-    <img src="https://i.postimg.cc/LX7M6CN8/nose-trimmer.jpg" alt="Nose Hair Trimmer">
-    <h3 class="prod-name">Nose Hair Trimmer</h3>
-    <p class="prod-price">Price: 840 Taka</p>
-    <button onclick="location.href='checkout.html?product=Nose Hair Trimmer&price=840'" class="buy-btn">Buy Now</button>
+
+  <div class="card">
+    <img src="images/nose-hair-trimmer.jpg">
+    <h3>Nose Hair Trimmer</h3>
+    <div class="price">৳ 840</div>
+    <a class="btn" href="checkout.html?product=Nose%20Hair%20Trimmer&price=840">Buy Now</a>
   </div>
+
 </div>
-
-<div class="contact-icons">
-  <a href="https://wa.me/8801980236917" target="_blank" style="color:#25D366;">📱</a>
-  <a href="https://www.facebook.com/share/14Sd48q5kpU/" target="_blank" style="color:#4267B2;">🔵</a>
-</div>
-
-<footer id="footerText">© 2026 Titan Mart BD | WhatsApp: 01980236917</footer>
-
-<script>
-let lang='en';
-function toggleLang(){
-  lang = (lang==='en')?'bn':'en';
-  document.querySelector('.lang-btn').innerText = (lang==='en')?'বাংলা':'English';
-  document.querySelectorAll('.prod-name').forEach((el,i)=>{
-    if(lang==='bn'){
-      el.innerText = i===0?'আর্ক লাইটার':'নাকের চুল ট্রিমার';
-    }else{
-      el.innerText = i===0?'Arc Lighter':'Nose Hair Trimmer';
-    }
-  });
-  document.querySelectorAll('.prod-price').forEach((el,i)=>{
-    el.innerText = (lang==='bn')?'মূল্য: '+(i===0?850:840)+' টাকা':'Price: '+(i===0?850:840)+' Taka';
-  });
-  document.querySelectorAll('.buy-btn').forEach((el)=>{
-    el.innerText = (lang==='bn')?'কিনুন':'Buy Now';
-  });
-  document.getElementById('siteTitle').innerText = (lang==='bn')?'টাইটান মার্ট বিডি':'Titan Mart BD';
-  document.getElementById('footerText').innerText = (lang==='bn')?'© 2026 টাইটান মার্ট বিডি | WhatsApp: 01980236917':'© 2026 Titan Mart BD | WhatsApp: 01980236917';
-}
-</script>
-
 </body>
 </html>
