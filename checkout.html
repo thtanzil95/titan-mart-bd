@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Titan Mart BD | Checkout</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
 <style>
 body{font-family:Arial,sans-serif;background:#f7f7f7;margin:0;padding:20px;}
 header{background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:24px;}
@@ -21,76 +22,8 @@ img.product-img{width:150px;margin-top:10px;}
   <input type="text" id="name" placeholder="Your Name" required>
   <input type="text" id="phone" placeholder="Phone Number" required>
 
-  <select id="district" onchange="loadUpazilas()" required>
+  <select id="district" required>
     <option value="">Select District</option>
-    <!-- 64 Districts Added -->
-    <option>Dhaka</option>
-    <option>Gazipur</option>
-    <option>Narayanganj</option>
-    <option>Munshiganj</option>
-    <option>Manikganj</option>
-    <option>Kishoreganj</option>
-    <option>Gopalganj</option>
-    <option>Faridpur</option>
-    <option>Rajbari</option>
-    <option>Shariatpur</option>
-    <option>Bhola</option>
-    <option>Patuakhali</option>
-    <option>Pirojpur</option>
-    <option>Barguna</option>
-    <option>Barishal</option>
-    <option>Jhalokathi</option>
-    <option>Chattogram</option>
-    <option>Cox's Bazar</option>
-    <option>Feni</option>
-    <option>Noakhali</option>
-    <option>Lakshmipur</option>
-    <option>Brahmanbaria</option>
-    <option>Chandpur</option>
-    <option>Khagrachhari</option>
-    <option>Rangamati</option>
-    <option>Sylhet</option>
-    <option>Moulvibazar</option>
-    <option>Sunamganj</option>
-    <option>Rangpur</option>
-    <option>Dinajpur</option>
-    <option>Nilphamari</option>
-    <option>Kurigram</option>
-    <option>Lalmonirhat</option>
-    <option>Gaibandha</option>
-    <option>Panchagarh</option>
-    <option>Thakurgaon</option>
-    <option>Sirajganj</option>
-    <option>Pabna</option>
-    <option>Bogra</option>
-    <option>Joypurhat</option>
-    <option>Naogaon</option>
-    <option>Natore</option>
-    <option>Nawabganj</option>
-    <option>Rajshahi</option>
-    <option>Chapainawabganj</option>
-    <option>Bagerhat</option>
-    <option>Khulna</option>
-    <option>Jessore</option>
-    <option>Satkhira</option>
-    <option>Jhenaidah</option>
-    <option>Magura</option>
-    <option>Meherpur</option>
-    <option>Kushtia</option>
-    <option>Chuadanga</option>
-    <option>Faridpur</option>
-    <option>Gazipur</option>
-    <option>Narsingdi</option>
-    <option>Comilla</option>
-    <option>Brahmanbaria</option>
-    <option>Feni</option>
-    <option>Chandpur</option>
-    <option>Noakhali</option>
-    <option>Habiganj</option>
-    <option>Maulvibazar</option>
-    <option>Sunamganj</option>
-    <option>Netrokona</option>
-    <option>Mymensingh</option>
   </select>
 
   <select id="thana" required>
@@ -99,12 +32,12 @@ img.product-img{width:150px;margin-top:10px;}
 
   <input type="text" id="address" placeholder="Address" required>
   
-  <select id="product" onchange="updateImage()" required>
+  <select id="product" required>
     <option value="850" data-img="https://i.postimg.cc/1Xv6RC5d/arc-lighter.jpg">Arc Lighter - 850 Taka</option>
     <option value="840" data-img="https://i.postimg.cc/LX7M6CN8/nose-trimmer.jpg">Nose Hair Trimmer - 840 Taka</option>
   </select>
 
-  <select id="qty" onchange="updateTotal()">
+  <select id="qty">
     <option value="1">1</option><option value="2">2</option><option value="3">3</option>
     <option value="4">4</option><option value="5">5</option>
   </select>
@@ -118,39 +51,48 @@ img.product-img{width:150px;margin-top:10px;}
   <button type="button" onclick="placeOrder()">Place Order via WhatsApp</button>
 </form>
 
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-// Load Bangladesh upazilas JSON
+// Initialize Choices.js for searchable dropdown
+const districtChoice = new Choices('#district',{searchEnabled:true,removeItemButton:false});
+const thanaChoice = new Choices('#thana',{searchEnabled:true,removeItemButton:false});
+const qtyChoice = new Choices('#qty',{searchEnabled:true,removeItemButton:false});
+
+// Load Bangladesh upazilas
 let upazilaData = {};
 fetch("bangladesh_upazilas.json")
   .then(resp => resp.json())
-  .then(data => upazilaData = data);
+  .then(data=>{
+    upazilaData = data;
+    // Populate district dropdown
+    Object.keys(upazilaData).forEach(d=>{
+      districtChoice.setChoices([{value:d,label:d}], 'value', 'label', false);
+    });
+  });
 
 // Generate Order ID
-function generateOrderID(){
-  return 'TMBD-'+Date.now();
-}
+function generateOrderID(){ return 'TMBD-'+Date.now(); }
 
-// Populate upazilas
-function loadUpazilas(){
-  const dist = document.getElementById("district").value;
-  const thanaEl = document.getElementById("thana");
-  thanaEl.innerHTML = "<option>Select Thana</option>";
+// Load upazilas based on selected district
+document.getElementById('district').addEventListener('change',()=>{
+  const dist = document.getElementById('district').value;
+  thanaChoice.clearStore();
+  thanaChoice.setChoices([{value:'',label:'Select Thana'}], 'value','label',false);
   if(upazilaData[dist]){
-    upazilaData[dist].forEach(u=>{
-      let o=document.createElement("option");
-      o.value=u; o.textContent=u;
-      thanaEl.appendChild(o);
-    });
+    let options = upazilaData[dist].map(u=>({value:u,label:u}));
+    thanaChoice.setChoices(options,'value','label',false);
   }
   updateDelivery();
-}
+});
 
-// Update product image
+// Update product image and total
 function updateImage(){
   let img = document.getElementById("product").selectedOptions[0].dataset.img;
   document.getElementById("productImg").src = img;
   updateTotal();
 }
+document.getElementById('product').addEventListener('change',updateImage);
+document.getElementById('qty').addEventListener('change',updateTotal);
 
 // Delivery + total
 function updateDelivery(){
@@ -165,7 +107,7 @@ function updateTotal(){
   document.getElementById("total").innerText = (price*qty)+del;
 }
 
-// WhatsApp Order
+// Place order WhatsApp
 function placeOrder(){
   let orderID = generateOrderID();
   document.getElementById("orderID").innerText = orderID;
