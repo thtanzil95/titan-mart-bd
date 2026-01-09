@@ -6,9 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
-.container{max-width:720px;margin:40px auto;padding:0;}
-.lang-btn{ text-align:right; cursor:pointer; color:#ff4c00; font-weight:bold; margin-bottom:15px; }
-.card{background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.15);padding:25px;animation:fadeIn 0.4s;}
+.container{max-width:720px;margin:20px auto;padding:0;}
+.header{background:#ff4c00;color:#fff;text-align:center;padding:20px;border-radius:12px 12px 0 0;box-shadow:0 5px 15px rgba(0,0,0,0.1);}
+.header h1{margin:0;font-size:24px;}
+.lang-btn{ position:absolute; top:25px; right:20px; cursor:pointer; color:#fff; font-weight:bold; }
+.card{background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.15);padding:25px;animation:fadeIn 0.4s;margin-top:-10px;}
 h2{text-align:center;color:#ff4c00;margin-bottom:20px;font-weight:600;}
 input,select{width:100%;padding:12px;margin-top:10px;border:1px solid #ccc;border-radius:8px;transition:0.3s;}
 input:focus,select:focus{border-color:#ff4c00;outline:none;box-shadow:0 0 6px rgba(255,76,0,0.3);}
@@ -22,8 +24,12 @@ button:hover{background:#e04300;}
 </head>
 <body>
 
-<div class="container">
+<div class="header">
+  <h1>Titan Mart BD</h1>
   <div class="lang-btn" onclick="toggleLang()">EN</div>
+</div>
+
+<div class="container">
   <div class="card">
     <h2 id="title">চেকআউট</h2>
 
@@ -69,9 +75,8 @@ const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
 const price = parseInt(params.get("price"));
 document.getElementById("product").innerText = product;
-document.getElementById("price").innerText = price;
 
-// Set product image
+// Product Image
 let imgSrc = "";
 if(product==="Arc Lighter"){ imgSrc="arc-lighter.jpg"; }
 else if(product==="Nose Hair Trimmer"){ imgSrc="nose-hair-trimmer.jpg"; }
@@ -139,7 +144,7 @@ document.getElementById("thanaSearch").oninput=function(){
   });
 };
 
-// Place Order
+// Place Order (WhatsApp direct, no popup)
 function placeOrder(){
   const name=document.getElementById("name").value.trim();
   const phone=document.getElementById("phone").value.trim();
@@ -158,7 +163,6 @@ function placeOrder(){
   const date=now.toLocaleDateString('bn-BD',{day:'2-digit',month:'2-digit',year:'numeric'});
   const time=now.toLocaleTimeString('en-US',{hour12:false});
 
-  // WhatsApp auto-open
   const msg=`Order ID: ${id}
 Date: ${date}
 Time: ${time}
@@ -173,24 +177,6 @@ Delivery Charge: ৳${delivery}
 Total: ৳${total}`;
 
   window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg),"_blank");
-
-  // Popup confirmation
-  const popupContent=`<html><head><title>Order Success</title></head><body style="font-family:Arial,sans-serif;text-align:center;padding:30px;background:#fef9f4;">
-  <h2 style="color:#ff4c00;">অর্ডার সফলভাবে নেওয়া হয়েছে!</h2>
-  <p>ধন্যবাদ, ${name}!</p>
-  <p><b>Order ID:</b> ${id}</p>
-  <p><b>Date:</b> ${date}</p>
-  <p><b>Time:</b> ${time}</p>
-  <p><b>Product:</b> ${product}</p>
-  <p><b>Quantity:</b> ${qty}</p>
-  <p><b>Delivery Charge:</b> ৳${delivery}</p>
-  <p><b>Total:</b> ৳${total}</p>
-  <p>ডেলিভারি চার্জ: Inside Dhaka 60 ৳ | Outside Dhaka 120 ৳</p>
-  <p>আপনার অর্ডারের জন্য ধন্যবাদ! আমরা খুব শীঘ্রই ডেলিভারি নিশ্চিত করব।</p>
-  </body></html>`;
-
-  const popup=window.open("","Order Success","width=400,height=600");
-  popup.document.write(popupContent);
 }
 
 // Bangla / English toggle
@@ -203,7 +189,6 @@ function toggleLang(){
   document.getElementById("address").placeholder=bn?"সম্পূর্ণ ঠিকানা":"Full Address";
   document.getElementById("pLabel").innerText=bn?"পণ্য:":"Product:";
   document.getElementById("prLabel").innerText=bn?"মূল্য:":"Price:";
-  document.getElementById("dChargeLabel")?.innerText=bn?"ডেলিভারি চার্জ:":"Delivery Charge:";
   document.getElementById("tLabel").innerText=bn?"মোট:":"Total:";
   document.getElementById("dLabel").innerText=bn?"জেলা:":"District:";
   document.getElementById("thLabel").innerText=bn?"থানা/উপজেলা:":"Thana/Upazila:";
