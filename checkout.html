@@ -7,7 +7,7 @@
 <style>
 body{font-family:Arial, sans-serif; padding:20px; background:#f7f7f7;}
 h2{text-align:center; color:#ff4c00;}
-form{max-width:450px;margin:auto;background:white;padding:20px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
+form{max-width:500px;margin:auto;background:white;padding:20px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
 input, select{padding:10px; margin:10px 0; width:100%; border-radius:5px; border:1px solid #ccc;}
 button{background:#ff4c00;color:white;padding:12px; width:100%; border:none; border-radius:5px; cursor:pointer; font-size:16px;}
 button:hover{background:#e24300;}
@@ -22,7 +22,17 @@ button:hover{background:#e24300;}
   Name: <input id="name" type="text" required><br>
   Phone: <input id="phone" type="text" required><br>
   Alt Phone: <input id="altphone" type="text"><br>
-  District: <input id="district" type="text" required><br>
+
+  District:
+  <select id="district" onchange="updateThanaAndDelivery()" required>
+    <option value="">Select District</option>
+  </select><br>
+
+  Thana / Upazila:
+  <select id="thana" required>
+    <option value="">Select Thana</option>
+  </select><br>
+
   Address: <input id="address" type="text" required><br>
 
   Product:
@@ -33,74 +43,113 @@ button:hover{background:#e24300;}
 
   Quantity: <input id="qty" type="number" value="1" min="1" onchange="updateTotal()"><br>
 
-  Delivery:
-  <select id="delivery" onchange="updateTotal()">
-    <option value="0">Standard</option>
-    <option value="50">Express (+50)</option>
-  </select><br>
-
-  <div class="total">Total: <span id="total">850</span> Taka</div>
+  Delivery Charge: <span id="deliveryCharge">0</span> Taka<br>
+  <div class="total">Total: <span id="total">0</span> Taka</div><br>
 
   <button type="button" onclick="sendOrder()">Place Order</button>
 </form>
 
 <script>
+// Bangladesh Districts + Thanas
+const bangladesh = {
+  "Dhaka": ["Dhanmondi", "Gulshan", "Banani", "Mirpur", "Mohakhali", "Motijheel"],
+  "Chattogram": ["Pahartali", "Kotwali", "Chandgaon", "Halishahar", "Patiya"],
+  "Khulna": ["Daulatpur", "Khalishpur", "Sonadanga"],
+  "Rajshahi": ["Boalia", "Chhota Natore", "Motihar"],
+  "Barishal": ["Babuganj", "Bakerganj", "Barishal Sadar"],
+  "Sylhet": ["Sylhet Sadar", "Beanibazar", "Fenchuganj"],
+  "Rangpur": ["Rangpur Sadar", "Gangachara", "Kaunia"],
+  "Mymensingh": ["Mymensingh Sadar", "Bhaluka", "Trishal"],
+  "Comilla": ["Comilla Sadar", "Chandina", "Muradnagar"],
+  "Jessore": ["Jessore Sadar", "Abhaynagar", "Bagherpara"],
+  "Tangail": ["Tangail Sadar", "Madhupur", "Nagarpur"],
+  "Pabna": ["Pabna Sadar", "Atghoria", "Bera"],
+  "Narsingdi": ["Narsingdi Sadar", "Belabo", "Raipura"],
+  "Noakhali": ["Noakhali Sadar", "Begumganj", "Chatkhil"]
+};
+
+// Populate district dropdown
+const districtSelect = document.getElementById("district");
+for(let dist in bangladesh){
+  let opt = document.createElement("option");
+  opt.value = dist;
+  opt.textContent = dist;
+  districtSelect.appendChild(opt);
+}
+
+// Populate Thana based on district
+function updateThanaAndDelivery(){
+  const thanaSelect = document.getElementById("thana");
+  thanaSelect.innerHTML = '<option value="">Select Thana</option>';
+  const dist = districtSelect.value;
+
+  if(dist){
+    bangladesh[dist].forEach(t=>{
+      let opt = document.createElement("option");
+      opt.value = t;
+      opt.textContent = t;
+      thanaSelect.appendChild(opt);
+    });
+  }
+
+  // Set delivery charge
+  let deliveryCharge = (dist==="Dhaka") ? 60 : 120;
+  document.getElementById("deliveryCharge").innerText = deliveryCharge;
+  updateTotal();
+}
+
 // Update total price
 function updateTotal(){
   let productPrice = parseInt(document.getElementById("product").value);
   let qty = parseInt(document.getElementById("qty").value);
-  let delivery = parseInt(document.getElementById("delivery").value);
+  let delivery = parseInt(document.getElementById("deliveryCharge").innerText);
   let total = (productPrice * qty) + delivery;
   document.getElementById("total").innerText = total;
 }
 
-// Send order
+// Send order function
 function sendOrder(){
   let name = document.getElementById("name").value;
   let phone = document.getElementById("phone").value;
   let altphone = document.getElementById("altphone").value;
   let district = document.getElementById("district").value;
+  let thana = document.getElementById("thana").value;
   let address = document.getElementById("address").value;
   let productText = document.getElementById("product").options[document.getElementById("product").selectedIndex].text;
   let qty = document.getElementById("qty").value;
-  let deliveryText = document.getElementById("delivery").options[document.getElementById("delivery").selectedIndex].text;
   let total = document.getElementById("total").innerText;
+  let deliveryCharge = document.getElementById("deliveryCharge").innerText;
 
-  if(!name || !phone || !district || !address){
+  if(!name || !phone || !district || !thana || !address){
     alert("Please fill all required fields!");
     return;
   }
 
-  // WhatsApp message
   let msg = encodeURIComponent(
-    `🛒 New Order\n\n👤 Name: ${name}\n📞 Phone: ${phone}\n📞 Alt: ${altphone}\n📍 District: ${district}\n🏠 Address: ${address}\n📦 Product: ${productText}\n🔢 Qty: ${qty}\n🚚 Delivery: ${deliveryText}\n💰 Total: ${total}`
+    `🛒 New Order\n\n👤 Name: ${name}\n📞 Phone: ${phone}\n📞 Alt: ${altphone}\n📍 District: ${district}\n🏘 Thana: ${thana}\n🏠 Address: ${address}\n📦 Product: ${productText}\n🔢 Qty: ${qty}\n🚚 Delivery Charge: ${deliveryCharge} Taka\n💰 Total: ${total} Taka`
   );
 
-  // Open WhatsApp in new tab
-  let win = window.open("https://wa.me/8801980236917?text="+msg, "_blank");
+  let win = window.open("https://wa.me/8801980236917?text="+msg,"_blank");
   if(win) win.focus();
 
-  // Send order to Google Sheet (background)
-  fetch("WEB_APP_URL_HERE", {  // <-- Replace with your Apps Script Web App URL
+  // Send order to Google Sheet
+  fetch("WEB_APP_URL_HERE", {
     method:"POST",
     headers: {"Content-Type":"application/json"},
     body: JSON.stringify({
-      name, phone, altphone, district, address,
-      product: productText, qty, delivery: deliveryText, total
+      name, phone, altphone, district, thana, address,
+      product: productText, qty, delivery: deliveryCharge, total
     })
   })
   .then(res=>res.json())
-  .then(data=>console.log("Sheet Response:", data))
-  .catch(err=>console.error("Sheet Error:", err));
+  .then(data=>console.log(data))
+  .catch(err=>console.error(err));
 
-  // Redirect only after user confirms
-  let proceed = confirm("WhatsApp খুলেছে। Message পাঠানোর পর OK চাপুন Success page এ যেতে।");
-  if(proceed){
-    window.location.href="success.html";
-  }
+  let proceed = confirm("WhatsApp খুলেছে। Message পাঠানোর পর Success page এ যেতে OK চাপুন।");
+  if(proceed) window.location.href="success.html";
 }
 
-// Initialize total on load
+// Initialize
 updateTotal();
 </script>
 
