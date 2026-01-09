@@ -1,128 +1,41 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checkout | Titan Mart BD</title>
-
-<style>
-body{font-family:Arial;background:#f2f2f2}
-.box{
-max-width:520px;margin:30px auto;background:#fff;
-padding:20px;border-radius:8px
-}
-h2{text-align:center;color:#ff4c00}
-label{font-weight:bold;margin-top:10px;display:block}
-input,select,textarea{
-width:100%;padding:10px;margin-top:5px;
-border:1px solid #ccc;border-radius:5px
-}
-textarea{resize:none}
-.summary{
-background:#f9f9f9;padding:12px;margin-top:15px;border-radius:6px
-}
-.summary p{margin:5px 0;font-weight:bold}
-button{
-margin-top:15px;width:100%;padding:12px;
-font-size:16px;background:#25D366;color:#fff;
-border:none;border-radius:6px;cursor:pointer
-}
-button:hover{background:#128c3e}
-.note{text-align:center;font-size:13px;color:#555;margin-top:10px}
-</style>
-</head>
-
-<body>
-
-<div class="box">
-<h2>Checkout</h2>
-
-<form onsubmit="sendOrder();return false;">
-
-<label>Full Name</label>
-<input id="name" required>
-
-<label>Phone Number</label>
-<input id="phone" required>
-
-<label>Alternative Phone</label>
-<input id="altphone">
-
-<label>District</label>
-<input id="district" required>
-
-<label>Full Address</label>
-<textarea id="address" rows="3" required></textarea>
-
-<label>Product</label>
-<select id="product" onchange="calculate()">
-<option value="850">Arc Lighter – ৳850</option>
-<option value="840">Nose Hair Trimmer – ৳840</option>
-</select>
-
-<label>Quantity</label>
-<select id="qty" onchange="calculate()">
-<option>1</option>
-<option>2</option>
-<option>3</option>
-</select>
-
-<label>Delivery</label>
-<select id="delivery" onchange="calculate()">
-<option value="80">Inside Dhaka – ৳80</option>
-<option value="150">Outside Dhaka – ৳150</option>
-</select>
-
-<div class="summary">
-<p>Subtotal: ৳<span id="subtotal">0</span></p>
-<p>Delivery: ৳<span id="dcharge">0</span></p>
-<p>Total: ৳<span id="total">0</span></p>
-</div>
-
-<button type="submit">Confirm Order</button>
-
-</form>
-
-<p class="note">
-Payment: bKash / Nagad / Cash on Delivery<br>
-Support: 01980236917
-</p>
-</div>
-
-<script>
-function calculate(){
-let price = Number(product.value);
-let qty = Number(document.getElementById("qty").value);
-let del = Number(delivery.value);
-
-let sub = price * qty;
-let total = sub + del;
-
-subtotal.innerText = sub;
-dcharge.innerText = del;
-document.getElementById("total").innerText = total;
-}
-
-calculate();
-
 function sendOrder(){
-let msg =
-"🛒 New Order%0A%0A"+
-"👤 Name: "+name.value+"%0A"+
-"📞 Phone: "+phone.value+"%0A"+
-"📞 Alt: "+altphone.value+"%0A"+
-"📍 District: "+district.value+"%0A"+
-"🏠 Address: "+address.value+"%0A%0A"+
-"📦 Product: "+product.options[product.selectedIndex].text+"%0A"+
-"🔢 Qty: "+qty.value+"%0A"+
-"🚚 Delivery: "+delivery.options[delivery.selectedIndex].text+"%0A"+
-"💰 Total: ৳"+document.getElementById("total").innerText;
+  let name = document.getElementById("name").value;
+  let phone = document.getElementById("phone").value;
+  let altphone = document.getElementById("altphone").value;
+  let district = document.getElementById("district").value;
+  let address = document.getElementById("address").value;
+  let productText = document.getElementById("product").options[document.getElementById("product").selectedIndex].text;
+  let qty = document.getElementById("qty").value;
+  let deliveryText = document.getElementById("delivery").options[document.getElementById("delivery").selectedIndex].text;
+  let total = document.getElementById("total").innerText;
 
-window.open("https://wa.me/8801980236917?text="+msg);
+  // WhatsApp message
+  let msg = encodeURIComponent(
+    `🛒 New Order\n\n👤 Name: ${name}\n📞 Phone: ${phone}\n📞 Alt: ${altphone}\n📍 District: ${district}\n🏠 Address: ${address}\n📦 Product: ${productText}\n🔢 Qty: ${qty}\n🚚 Delivery: ${deliveryText}\n💰 Total: ${total}`
+  );
+
+  // Open WhatsApp in new tab
+  let win = window.open("https://wa.me/8801980236917?text="+msg, "_blank");
+
+  // **Redirect only if new tab opens successfully**
+  if(win){
+    alert("WhatsApp খুলেছে। Message পাঠানোর পর OK চাপুন Success page এ যাওয়ার জন্য।");
+    win.focus();
+    document.getElementById("checkoutForm").onsubmit = function(e){
+      e.preventDefault();
+      window.location.href="success.html";
+    };
+  }else{
+    alert("WhatsApp open করতে পারছি না। Success page এ যেতে OK চাপুন।");
+    window.location.href="success.html";
+  }
+
+  // Send order to Google Sheet (background)
+  fetch("WEB_APP_URL_HERE", {  
+    method:"POST",
+    body: JSON.stringify({
+      name, phone, altphone, district, address,
+      product: productText, qty, delivery: deliveryText, total
+    })
+  });
 }
-setTimeout(()=>{window.location.href="success.html"},1000);
-</script>
-
-</body>
-</html>
-
