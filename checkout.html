@@ -21,9 +21,10 @@ img.product-img{width:100%;max-height:250px;object-fit:contain;margin-top:10px;b
   <div class="lang-btn" onclick="toggleLang()">EN</div>
   <h2 id="title">চেকআউট</h2>
 
-  <!-- Customer Information -->
+  <!-- Customer Info -->
   <input id="name" placeholder="আপনার নাম" required>
   <input id="phone" placeholder="মোবাইল নাম্বার" required>
+  <input id="address" placeholder="সম্পূর্ণ ঠিকানা" required>
 
   <!-- District + Thana -->
   <div class="info">
@@ -31,20 +32,18 @@ img.product-img{width:100%;max-height:250px;object-fit:contain;margin-top:10px;b
     <input type="text" id="districtSearch" placeholder="জেলা খুঁজুন...">
     <select id="district" required></select>
   </div>
-
   <div class="info">
     <b id="thLabel">থানা/উপজেলা:</b>
     <input type="text" id="thanaSearch" placeholder="থানা/উপজেলা খুঁজুন...">
     <select id="thana" required></select>
   </div>
 
-  <!-- Product Info -->
+  <!-- Product -->
   <img id="productImg" class="product-img" src="" alt="Product Image">
-
   <div class="info"><b id="pLabel">পণ্য:</b> <span id="product"></span></div>
   <div class="info"><b id="prLabel">মূল্য:</b> ৳ <span id="price"></span></div>
 
-  <!-- Quantity + Total -->
+  <!-- Quantity -->
   <select id="qty">
     <option value="1">পরিমাণ 1</option>
     <option value="2">পরিমাণ 2</option>
@@ -52,13 +51,14 @@ img.product-img{width:100%;max-height:250px;object-fit:contain;margin-top:10px;b
     <option value="4">পরিমাণ 4</option>
   </select>
 
+  <!-- Total -->
   <div class="info"><b id="tLabel">মোট:</b> ৳ <span id="total"></span></div>
 
   <button onclick="placeOrder()" id="btn">অর্ডার কনফার্ম করুন</button>
 </div>
 
 <script>
-// Product details from URL
+// Product details
 const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
 const price = parseInt(params.get("price"));
@@ -66,30 +66,29 @@ document.getElementById("product").innerText = product;
 document.getElementById("price").innerText = price;
 document.getElementById("productImg").src = product==="Arc Lighter"?"images/arc-lighter.jpg":"images/nose-hair-trimmer.jpg";
 
-// Total calculation
-function calc(){ document.getElementById("total").innerText = price * document.getElementById("qty").value; }
-calc(); document.getElementById("qty").onchange = calc;
+// Unique Order ID
+function orderID(){ return "TM"+Math.floor(100000+Math.random()*900000); }
 
-// Unique order ID
-function orderID(){ return "TM" + Math.floor(100000 + Math.random()*900000); }
-
-// Place order via WhatsApp
+// WhatsApp Order
 function placeOrder(){
   const id = orderID();
   const name = document.getElementById("name").value;
   const phone = document.getElementById("phone").value;
+  const address = document.getElementById("address").value;
   const district = document.getElementById("district").value;
   const thana = document.getElementById("thana").value;
+  const qty = document.getElementById("qty").value;
   const total = document.getElementById("total").innerText;
 
-  const msg = 
+  const msg =
 `Order ID: ${id}
 Name: ${name}
 Phone: ${phone}
+Address: ${address}
 District: ${district}
 Thana/Upazila: ${thana}
 Product: ${product}
-Quantity: ${document.getElementById("qty").value}
+Quantity: ${qty}
 Total: ৳${total}`;
 
   window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg), "_blank");
@@ -98,79 +97,77 @@ Total: ৳${total}`;
 // Bangla / English toggle
 let bn=true;
 function toggleLang(){
-  bn = !bn;
-  document.getElementById("title").innerText = bn?"চেকআউট":"Checkout";
-  document.getElementById("name").placeholder = bn?"আপনার নাম":"Your Name";
-  document.getElementById("phone").placeholder = bn?"মোবাইল নাম্বার":"Phone Number";
-  document.getElementById("pLabel").innerText = bn?"পণ্য:":"Product:";
-  document.getElementById("prLabel").innerText = bn?"মূল্য:":"Price:";
-  document.getElementById("tLabel").innerText = bn?"মোট:":"Total:";
-  document.getElementById("dLabel").innerText = bn?"জেলা:":"District:";
-  document.getElementById("thLabel").innerText = bn?"থানা/উপজেলা:":"Thana/Upazila:";
-  document.getElementById("btn").innerText = bn?"অর্ডার কনফার্ম করুন":"Confirm Order";
-  document.querySelector(".lang-btn").innerText = bn?"EN":"BN";
+  bn=!bn;
+  document.getElementById("title").innerText=bn?"চেকআউট":"Checkout";
+  document.getElementById("name").placeholder=bn?"আপনার নাম":"Your Name";
+  document.getElementById("phone").placeholder=bn?"মোবাইল নাম্বার":"Phone Number";
+  document.getElementById("address").placeholder=bn?"সম্পূর্ণ ঠিকানা":"Full Address";
+  document.getElementById("pLabel").innerText=bn?"পণ্য:":"Product:";
+  document.getElementById("prLabel").innerText=bn?"মূল্য:":"Price:";
+  document.getElementById("tLabel").innerText=bn?"মোট:":"Total:";
+  document.getElementById("dLabel").innerText=bn?"জেলা:":"District:";
+  document.getElementById("thLabel").innerText=bn?"থানা/উপজেলা:":"Thana/Upazila:";
+  document.getElementById("btn").innerText=bn?"অর্ডার কনফার্ম করুন":"Confirm Order";
+  document.querySelector(".lang-btn").innerText=bn?"EN":"BN";
 }
 
-// Load upazila JSON file you uploaded
+// Load upazila JSON
 let upazilaData = {};
 fetch("bangladesh_upazilas.json")
-  .then(resp => resp.json())
-  .then(data => {
-    upazilaData = data;
-    populateDistricts();
-  });
+.then(resp=>resp.json())
+.then(data=>{upazilaData=data; populateDistricts();});
 
-// Populate district list
+// Populate districts
 function populateDistricts(){
-  const districtSel = document.getElementById("district");
-  Object.keys(upazilaData).forEach(d => {
-    let o = document.createElement("option");
-    o.value = d; o.text = d;
-    districtSel.add(o);
+  const districtSel=document.getElementById("district");
+  Object.keys(upazilaData).forEach(d=>{
+    let o=document.createElement("option"); o.value=d; o.text=d; districtSel.add(o);
   });
+  calc();
   populateThana();
 }
 
-// Populate thana dropdown
+// Populate thana
 function populateThana(){
-  const thanaSel = document.getElementById("thana");
-  thanaSel.innerHTML = "";
-  const dist = document.getElementById("district").value;
-  (upazilaData[dist] || []).forEach(t => {
-    let o = document.createElement("option");
-    o.value = t; o.text = t;
-    thanaSel.add(o);
+  const thSel=document.getElementById("thana");
+  thSel.innerHTML="";
+  const dist=document.getElementById("district").value;
+  (upazilaData[dist]||[]).forEach(t=>{
+    let o=document.createElement("option"); o.value=t; o.text=t; thSel.add(o);
   });
+  calc();
 }
-document.getElementById("district").onchange = function(){
+
+// Total calculation with delivery charge
+function calc(){
+  const qty=parseInt(document.getElementById("qty").value);
+  const dist=document.getElementById("district").value;
+  let delivery = (dist==="ঢাকা")?60:120;
+  const total = price*qty + delivery;
+  document.getElementById("total").innerText = total;
+}
+document.getElementById("qty").onchange=calc;
+document.getElementById("district").onchange=()=>{
   populateThana();
+  calc();
 };
 
 // Search filters
-document.getElementById("districtSearch").oninput = function(){
-  const f = this.value.toLowerCase();
-  const sel = document.getElementById("district");
-  sel.innerHTML = "";
+document.getElementById("districtSearch").oninput=function(){
+  const f=this.value.toLowerCase();
+  const sel=document.getElementById("district");
+  sel.innerHTML="";
   Object.keys(upazilaData).filter(d=>d.toLowerCase().includes(f))
-    .forEach(d => {
-      let o = document.createElement("option");
-      o.value = d; o.text = d;
-      sel.add(o);
-    });
+    .forEach(d=>{let o=document.createElement("option"); o.value=d; o.text=d; sel.add(o);});
   populateThana();
 };
-
-document.getElementById("thanaSearch").oninput = function(){
-  const f = this.value.toLowerCase();
-  const thSel = document.getElementById("thana");
-  thSel.innerHTML = "";
-  const dist = document.getElementById("district").value;
-  (upazilaData[dist] || []).filter(t=>t.toLowerCase().includes(f))
-    .forEach(t => {
-      let o = document.createElement("option");
-      o.value = t; o.text = t;
-      thSel.add(o);
-    });
+document.getElementById("thanaSearch").oninput=function(){
+  const f=this.value.toLowerCase();
+  const thSel=document.getElementById("thana");
+  thSel.innerHTML="";
+  const dist=document.getElementById("district").value;
+  (upazilaData[dist]||[]).filter(t=>t.toLowerCase().includes(f))
+    .forEach(t=>{let o=document.createElement("option"); o.value=t; o.text=t; thSel.add(o);});
 };
 </script>
 
