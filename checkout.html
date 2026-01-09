@@ -23,6 +23,7 @@ img.product-img{width:150px;margin-top:10px;}
 
   <select id="district" onchange="loadUpazilas()" required>
     <option value="">Select District</option>
+    <!-- 64 Districts Added -->
     <option>Dhaka</option>
     <option>Gazipur</option>
     <option>Narayanganj</option>
@@ -110,6 +111,7 @@ img.product-img{width:150px;margin-top:10px;}
 
   <img id="productImg" class="product-img" src="https://i.postimg.cc/1Xv6RC5d/arc-lighter.jpg">
 
+  <div>Order ID: <span id="orderID">---</span></div>
   <div>Delivery: <span id="deliveryCharge">0</span> Taka</div>
   <div>Total: <span id="total">0</span> Taka</div>
 
@@ -117,11 +119,16 @@ img.product-img{width:150px;margin-top:10px;}
 </form>
 
 <script>
-// Load Bangladesh upazilas from JSON
+// Load Bangladesh upazilas JSON
 let upazilaData = {};
 fetch("bangladesh_upazilas.json")
   .then(resp => resp.json())
   .then(data => upazilaData = data);
+
+// Generate Order ID
+function generateOrderID(){
+  return 'TMBD-'+Date.now();
+}
 
 // Populate upazilas
 function loadUpazilas(){
@@ -160,6 +167,9 @@ function updateTotal(){
 
 // WhatsApp Order
 function placeOrder(){
+  let orderID = generateOrderID();
+  document.getElementById("orderID").innerText = orderID;
+
   let name=document.getElementById("name").value;
   let phone=document.getElementById("phone").value;
   let district=document.getElementById("district").value;
@@ -169,7 +179,7 @@ function placeOrder(){
   let qty=document.getElementById("qty").value;
   let total=document.getElementById("total").innerText;
 
-  let msg = `Order:\nName: ${name}\nPhone: ${phone}\nDistrict: ${district}\nThana: ${thana}\nAddress: ${address}\nProduct: ${productText}\nQuantity: ${qty}\nTotal: ${total}`;
+  let msg = `Order ID: ${orderID}\nName: ${name}\nPhone: ${phone}\nDistrict: ${district}\nThana: ${thana}\nAddress: ${address}\nProduct: ${productText}\nQuantity: ${qty}\nTotal: ${total}`;
   window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg),"_blank");
 }
 
