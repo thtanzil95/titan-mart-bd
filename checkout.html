@@ -48,10 +48,10 @@ button:hover{background:#e04300;}
     <div class="info"><b id="pLabel">পণ্য:</b> <span id="product"></span></div>
     <div class="info"><b id="prLabel">মূল্য:</b> ৳ <span id="price"></span></div>
     <select id="qty">
-      <option value="1"> 1</option>
-      <option value="2"> 2</option>
-      <option value="3"> 3</option>
-      <option value="4"> 4</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
     </select>
 
     <!-- Delivery & Total -->
@@ -79,7 +79,7 @@ function placeOrder(){
   const name = document.getElementById("name").value.trim();
   const phone = document.getElementById("phone").value.trim();
   const address = document.getElementById("address").value.trim();
-  const district = document.getElementById("district").value;
+  const district = document.getElementById("district").value.trim();
   const thana = document.getElementById("thana").value;
   const qty = document.getElementById("qty").value;
 
@@ -88,15 +88,13 @@ function placeOrder(){
     return;
   }
 
-  let delivery = 120; // default outside Dhaka
-  if(district.trim() === "dhaka"){ 
-    delivery = 60;
-  }
+  // Delivery charge
+  let delivery = 120;
+  if(district === "ঢাকা"){ delivery = 60; }
 
   const total = price*qty + delivery;
   const id = orderID();
 
-  // Live date & time
   const now = new Date();
   const date = now.toLocaleDateString('bn-BD', {day:'2-digit', month:'2-digit', year:'numeric'});
   const time = now.toLocaleTimeString('en-US', {hour12:false});
@@ -195,4 +193,3 @@ document.getElementById("thanaSearch").oninput=function(){
 </script>
 </body>
 </html>
-
