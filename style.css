@@ -1,0 +1,99 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    background-color: #ff5722; /* দারাজ-এর মতো রং */
+    color: white;
+    padding: 15px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 20px;
+}
+
+#view-cart-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.product-card {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.product-card img {
+    max-width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.btn {
+    background-color: #ff5722;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefee;
+    margin: 15% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 10px;
+}
+
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
