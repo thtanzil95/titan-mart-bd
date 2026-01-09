@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checkout | Titan Mart</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
 body{font-family:Arial,sans-serif; background:#f7f7f7; padding:20px;}
 form{max-width:600px;margin:auto;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
@@ -11,6 +12,7 @@ input,select{width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-r
 button{background:#ff4c00;color:white;padding:12px;border:none;border-radius:5px;cursor:pointer;font-size:16px;}
 button:hover{background:#e24300;}
 .total{font-weight:bold;font-size:18px;margin-top:10px;}
+#invoice{display:none;width:400px;padding:20px;background:white;border:1px solid #ccc;}
 </style>
 </head>
 <body>
@@ -47,6 +49,21 @@ button:hover{background:#e24300;}
 
   <button type="button" onclick="sendOrder()">Place Order</button>
 </form>
+
+<!-- Hidden invoice div for JPG -->
+<div id="invoice">
+  <h3 style="text-align:center;color:#ff4c00;">Titan Mart Invoice</h3>
+  <p><strong>Order ID:</strong> <span id="invOrderId"></span></p>
+  <p><strong>Name:</strong> <span id="invName"></span></p>
+  <p><strong>Phone:</strong> <span id="invPhone"></span></p>
+  <p><strong>District:</strong> <span id="invDistrict"></span></p>
+  <p><strong>Thana:</strong> <span id="invThana"></span></p>
+  <p><strong>Address:</strong> <span id="invAddress"></span></p>
+  <p><strong>Product:</strong> <span id="invProduct"></span></p>
+  <p><strong>Quantity:</strong> <span id="invQty"></span></p>
+  <p><strong>Delivery:</strong> <span id="invDelivery"></span> Taka</p>
+  <p><strong>Total:</strong> <span id="invTotal"></span> Taka</p>
+</div>
 
 <script>
 // ======= Bangladesh District + Upazila Data =======
@@ -106,73 +123,77 @@ const bangladeshUpazilas = {
 // ======= Populate District Dropdown =======
 const districtEl = document.getElementById("district");
 const thanaEl = document.getElementById("thana");
-
 Object.keys(bangladeshUpazilas).forEach(dist=>{
-  let opt = document.createElement("option");
-  opt.value = dist;
-  opt.textContent = dist;
-  districtEl.appendChild(opt);
+  let opt=document.createElement("option");
+  opt.value=dist; opt.textContent=dist; districtEl.appendChild(opt);
 });
 
 // ======= Update Thana Dropdown & Delivery =======
 function updateThanaAndDelivery(){
-  thanaEl.innerHTML = '<option value="">Select Thana</option>';
-  let dist = districtEl.value;
+  thanaEl.innerHTML='<option value="">Select Thana</option>';
+  let dist=districtEl.value;
   if(bangladeshUpazilas[dist]){
     bangladeshUpazilas[dist].forEach(t=>{
-      let opt = document.createElement("option");
-      opt.value = t;
-      opt.textContent = t;
-      thanaEl.appendChild(opt);
+      let opt=document.createElement("option");
+      opt.value=t; opt.textContent=t; thanaEl.appendChild(opt);
     });
   }
-  // Delivery charge
-  let charge = (dist==="Dhaka")?60:120;
-  document.getElementById("deliveryCharge").innerText = charge;
+  let charge=(dist==="Dhaka")?60:120;
+  document.getElementById("deliveryCharge").innerText=charge;
   updateTotal();
 }
 
 // ======= Total Calculation =======
 function updateTotal(){
-  let p = parseInt(document.getElementById("product").value);
-  let q = parseInt(document.getElementById("qty").value);
-  let d = parseInt(document.getElementById("deliveryCharge").innerText);
-  document.getElementById("total").innerText = (p*q)+d;
+  let p=parseInt(document.getElementById("product").value);
+  let q=parseInt(document.getElementById("qty").value);
+  let d=parseInt(document.getElementById("deliveryCharge").innerText);
+  document.getElementById("total").innerText=(p*q)+d;
 }
 
-// ======= Send Order =======
+// ======= Send Order with Invoice JPG =======
 function sendOrder(){
-  let name = document.getElementById("name").value;
-  let phone = document.getElementById("phone").value;
-  let altphone = document.getElementById("altphone").value;
-  let district = districtEl.value;
-  let thana = thanaEl.value;
-  let address = document.getElementById("address").value;
-  let productText = document.getElementById("product").options[document.getElementById("product").selectedIndex].text;
-  let qty = document.getElementById("qty").value;
-  let total = document.getElementById("total").innerText;
-  let deliveryCharge = document.getElementById("deliveryCharge").innerText;
+  let name=document.getElementById("name").value;
+  let phone=document.getElementById("phone").value;
+  let altphone=document.getElementById("altphone").value;
+  let district=districtEl.value;
+  let thana=thanaEl.value;
+  let address=document.getElementById("address").value;
+  let productText=document.getElementById("product").options[document.getElementById("product").selectedIndex].text;
+  let qty=document.getElementById("qty").value;
+  let total=document.getElementById("total").innerText;
+  let deliveryCharge=document.getElementById("deliveryCharge").innerText;
+  if(!name || !phone || !district || !thana || !address){alert("Please fill all required fields!");return;}
 
-  if(!name || !phone || !district || !thana || !address){
-    alert("Please fill all required fields!");
-    return;
-  }
+  // Short Order ID
+  const now=new Date();
+  const orderId="ORD"+String(now.getFullYear()).slice(2)+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0')+Math.floor(Math.random()*900+100);
 
-  // WhatsApp message
-  let msg = encodeURIComponent(
-    `🛒 New Order\n\n👤 Name: ${name}\n📞 Phone: ${phone}\n📍 District: ${district}\n🏘 Thana: ${thana}\n🏠 Address: ${address}\n📦 Product: ${productText}\n🔢 Qty: ${qty}\n🚚 Delivery: ${deliveryCharge} Taka\n💰 Total: ${total} Taka`
-  );
-  window.open("https://wa.me/8801980236917?text="+msg, "_blank");
+  // Fill invoice
+  document.getElementById("invOrderId").innerText=orderId;
+  document.getElementById("invName").innerText=name;
+  document.getElementById("invPhone").innerText=phone;
+  document.getElementById("invDistrict").innerText=district;
+  document.getElementById("invThana").innerText=thana;
+  document.getElementById("invAddress").innerText=address;
+  document.getElementById("invProduct").innerText=productText;
+  document.getElementById("invQty").innerText=qty;
+  document.getElementById("invDelivery").innerText=deliveryCharge;
+  document.getElementById("invTotal").innerText=total;
+
+  // Convert invoice to image
+  html2canvas(document.getElementById("invoice")).then(canvas=>{
+    let imgData=canvas.toDataURL("image/jpeg");
+    // Open image in new tab (user can share via WhatsApp)
+    window.open(imgData,"_blank");
+  });
+
+  // WhatsApp message (text)
+  let msg=encodeURIComponent(`🛒 New Order\nOrder ID: ${orderId}\nName: ${name}\nPhone: ${phone}\nDistrict: ${district}\nThana: ${thana}\nAddress: ${address}\nProduct: ${productText}\nQty: ${qty}\nDelivery: ${deliveryCharge} Taka\nTotal: ${total} Taka`);
+  window.open("https://wa.me/8801980236917?text="+msg,"_blank");
 
   // Save to Google Sheet
-  fetch("https://script.google.com/macros/s/AKfycby5V0I5F9YnVvhoreIlw298ISDYD-YxihexMmDVRuRKARkjdDI5_FAIstKovxLvUvCQZA/exec", {
-    method:"POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({
-      name, phone, altphone, district, thana, address,
-      product: productText, qty, delivery: deliveryCharge, total
-    })
-  });
+  fetch("WEB_APP_URL_HERE",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({orderId,name,phone,altphone,district,thana,address,product:productText,qty,delivery:deliveryCharge,total})});
 
   if(confirm("WhatsApp খুলেছে। Message পাঠানোর পর OK চাপুন Success page এ যেতে।")){
     window.location.href="success.html";
