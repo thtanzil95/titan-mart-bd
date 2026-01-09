@@ -40,11 +40,12 @@ img.product-img{width:150px;margin-top:10px;}
   <select id="qty">
     <option value="1">1</option><option value="2">2</option><option value="3">3</option>
     <option value="4">4</option><option value="10">10</option>
-  </select></option><option value="15">15</option>
+  10</option><option
 
   <img id="productImg" class="product-img" src="arc-lighter.jpg">
 
 
+  "<img id="productImg" class="product-img" src="nose-hair-trimmer.jpg">
   <div>Order ID: <span id="orderID">---</span></div>
   <div>Delivery: <span id="deliveryCharge">0</span> Taka</div>
   <div>Total: <span id="total">0</span> Taka</div>
@@ -87,8 +88,7 @@ document.getElementById('district').addEventListener('change',()=>{
 });
 
 // Update product image and total
-    
-  "<img id="productImg" class="product-img" src="nose-hair-trimmer.jpg">
+  
 function updateImage(){
   let img = document.getElementById("product").selectedOptions[0].dataset.img;
   document.getElementById("productImg").src = img;
@@ -134,6 +134,7 @@ updateTotal();
 
 </body>
 </html>
+
 
 
 
