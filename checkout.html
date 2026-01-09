@@ -5,11 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checkout | Titan Mart</title>
 <style>
-body{font-family:Arial, sans-serif; padding:20px;}
-input, select{padding:8px; margin:5px 0; width:100%;}
-button{background:#ff4c00;color:white;padding:10px 15px;border:none;border-radius:5px;cursor:pointer;}
+body{font-family:Arial, sans-serif; padding:20px; background:#f7f7f7;}
+h2{text-align:center; color:#ff4c00;}
+form{max-width:450px;margin:auto;background:white;padding:20px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
+input, select{padding:10px; margin:10px 0; width:100%; border-radius:5px; border:1px solid #ccc;}
+button{background:#ff4c00;color:white;padding:12px; width:100%; border:none; border-radius:5px; cursor:pointer; font-size:16px;}
 button:hover{background:#e24300;}
-form{max-width:400px;margin:auto;}
+.total{font-weight:bold; font-size:18px; margin:10px 0;}
 </style>
 </head>
 <body>
@@ -29,7 +31,7 @@ form{max-width:400px;margin:auto;}
     <option value="840">Nose Hair Trimmer</option>
   </select><br>
 
-  Quantity: <input id="qty" type="number" value="1" onchange="updateTotal()"><br>
+  Quantity: <input id="qty" type="number" value="1" min="1" onchange="updateTotal()"><br>
 
   Delivery:
   <select id="delivery" onchange="updateTotal()">
@@ -37,7 +39,7 @@ form{max-width:400px;margin:auto;}
     <option value="50">Express (+50)</option>
   </select><br>
 
-  Total: <span id="total">850</span> Taka<br><br>
+  <div class="total">Total: <span id="total">850</span> Taka</div>
 
   <button type="button" onclick="sendOrder()">Place Order</button>
 </form>
@@ -52,8 +54,55 @@ function updateTotal(){
   document.getElementById("total").innerText = total;
 }
 
-// Send order function
+// Send order
 function sendOrder(){
   let name = document.getElementById("name").value;
   let phone = document.getElementById("phone").value;
   let altphone = document.getElementById("altphone").value;
+  let district = document.getElementById("district").value;
+  let address = document.getElementById("address").value;
+  let productText = document.getElementById("product").options[document.getElementById("product").selectedIndex].text;
+  let qty = document.getElementById("qty").value;
+  let deliveryText = document.getElementById("delivery").options[document.getElementById("delivery").selectedIndex].text;
+  let total = document.getElementById("total").innerText;
+
+  if(!name || !phone || !district || !address){
+    alert("Please fill all required fields!");
+    return;
+  }
+
+  // WhatsApp message
+  let msg = encodeURIComponent(
+    `🛒 New Order\n\n👤 Name: ${name}\n📞 Phone: ${phone}\n📞 Alt: ${altphone}\n📍 District: ${district}\n🏠 Address: ${address}\n📦 Product: ${productText}\n🔢 Qty: ${qty}\n🚚 Delivery: ${deliveryText}\n💰 Total: ${total}`
+  );
+
+  // Open WhatsApp in new tab
+  let win = window.open("https://wa.me/8801980236917?text="+msg, "_blank");
+  if(win) win.focus();
+
+  // Send order to Google Sheet (background)
+  fetch("WEB_APP_URL_HERE", {  // <-- Replace with your Apps Script Web App URL
+    method:"POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      name, phone, altphone, district, address,
+      product: productText, qty, delivery: deliveryText, total
+    })
+  })
+  .then(res=>res.json())
+  .then(data=>console.log("Sheet Response:", data))
+  .catch(err=>console.error("Sheet Error:", err));
+
+  // Redirect only after user confirms
+  let proceed = confirm("WhatsApp খুলেছে। Message পাঠানোর পর OK চাপুন Success page এ যেতে।");
+  if(proceed){
+    window.location.href="success.html";
+  }
+}
+
+// Initialize total on load
+updateTotal();
+</script>
+
+</body>
+</html>
