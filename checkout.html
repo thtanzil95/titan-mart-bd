@@ -5,109 +5,97 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checkout | Titan Mart</title>
 <style>
-body{font-family:Arial, sans-serif; padding:20px; background:#f7f7f7;}
-h2{text-align:center; color:#ff4c00;}
-form{max-width:500px;margin:auto;background:white;padding:20px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
-input, select{padding:10px; margin:10px 0; width:100%; border-radius:5px; border:1px solid #ccc;}
-button{background:#ff4c00;color:white;padding:12px; width:100%; border:none; border-radius:5px; cursor:pointer; font-size:16px;}
+body{font-family:Arial, background:#f7f7f7; padding:20px;}
+form{max-width:550px;margin:auto;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+input,select{width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:5px;}
+button{background:#ff4c00;color:white;padding:12px;border:none;border-radius:5px;cursor:pointer;font-size:16px;}
 button:hover{background:#e24300;}
-.total{font-weight:bold; font-size:18px; margin:10px 0;}
+.total{font-weight:bold;font-size:18px;margin-top:10px;}
 </style>
 </head>
 <body>
 
-<h2>Checkout Page</h2>
+<h2 style="text-align:center;color:#ff4c00;">Checkout Page</h2>
 
 <form id="checkoutForm">
-  Name: <input id="name" type="text" required><br>
-  Phone: <input id="phone" type="text" required><br>
-  Alt Phone: <input id="altphone" type="text"><br>
+  Name:<input id="name" type="text" required>
+  Phone:<input id="phone" type="text" required>
+  Alt Phone:<input id="altphone" type="text">
 
   District:
-  <select id="district" onchange="updateThanaAndDelivery()" required>
-    <option value="">Select District</option>
-  </select><br>
+  <select id="district" onchange="loadUpazilas()" required>
+    <option value="">Loading districts...</option>
+  </select>
 
-  Thana / Upazila:
+  Thana/Upazila:
   <select id="thana" required>
-    <option value="">Select Thana</option>
-  </select><br>
+    <option value="">Select district first</option>
+  </select>
 
-  Address: <input id="address" type="text" required><br>
+  Address:<input id="address" type="text" required>
 
   Product:
   <select id="product" onchange="updateTotal()">
     <option value="850">Arc Lighter</option>
     <option value="840">Nose Hair Trimmer</option>
-  </select><br>
+  </select>
 
-  Quantity: <input id="qty" type="number" value="1" min="1" onchange="updateTotal()"><br>
+  Quantity:<input id="qty" type="number" value="1" min="1" onchange="updateTotal()">
 
-  Delivery Charge: <span id="deliveryCharge">0</span> Taka<br>
-  <div class="total">Total: <span id="total">0</span> Taka</div><br>
+  Delivery Charge: <span id="deliveryCharge">0</span> Taka
+  <div class="total">Total: <span id="total">0</span> Taka</div>
 
   <button type="button" onclick="sendOrder()">Place Order</button>
 </form>
 
 <script>
-// Bangladesh Districts + Thanas
-const bangladesh = {
-  "Dhaka": ["Dhanmondi", "Gulshan", "Banani", "Mirpur", "Mohakhali", "Motijheel"],
-  "Chattogram": ["Pahartali", "Kotwali", "Chandgaon", "Halishahar", "Patiya"],
-  "Khulna": ["Daulatpur", "Khalishpur", "Sonadanga"],
-  "Rajshahi": ["Boalia", "Chhota Natore", "Motihar"],
-  "Barishal": ["Babuganj", "Bakerganj", "Barishal Sadar"],
-  "Sylhet": ["Sylhet Sadar", "Beanibazar", "Fenchuganj"],
-  "Rangpur": ["Rangpur Sadar", "Gangachara", "Kaunia"],
-  "Mymensingh": ["Mymensingh Sadar", "Bhaluka", "Trishal"],
-  "Comilla": ["Comilla Sadar", "Chandina", "Muradnagar"],
-  "Jessore": ["Jessore Sadar", "Abhaynagar", "Bagherpara"],
-  "Tangail": ["Tangail Sadar", "Madhupur", "Nagarpur"],
-  "Pabna": ["Pabna Sadar", "Atghoria", "Bera"],
-  "Narsingdi": ["Narsingdi Sadar", "Belabo", "Raipura"],
-  "Noakhali": ["Noakhali Sadar", "Begumganj", "Chatkhil"]
-};
-
-// Populate district dropdown
-const districtSelect = document.getElementById("district");
-for(let dist in bangladesh){
-  let opt = document.createElement("option");
-  opt.value = dist;
-  opt.textContent = dist;
-  districtSelect.appendChild(opt);
+// Load all districts from API
+async function loadDistricts(){
+  const res = await fetch("https://bdopenapi.vercel.app/api/geo/districts");
+  const data = await res.json();
+  const distEl = document.getElementById("district");
+  distEl.innerHTML = '<option value="">Select District</option>';
+  data.forEach(d => {
+    let opt = document.createElement("option");
+    opt.value = d.name;
+    opt.textContent = d.name;
+    distEl.appendChild(opt);
+  });
 }
+loadDistricts();
 
-// Populate Thana based on district
-function updateThanaAndDelivery(){
-  const thanaSelect = document.getElementById("thana");
-  thanaSelect.innerHTML = '<option value="">Select Thana</option>';
-  const dist = districtSelect.value;
+// Load upazilas for selected district
+async function loadUpazilas(){
+  const dist = document.getElementById("district").value;
+  if(!dist) return;
+  const thanaEl = document.getElementById("thana");
+  thanaEl.innerHTML = '<option value="">Loading upazilas...</option>';
 
-  if(dist){
-    bangladesh[dist].forEach(t=>{
-      let opt = document.createElement("option");
-      opt.value = t;
-      opt.textContent = t;
-      thanaSelect.appendChild(opt);
-    });
-  }
+  const res = await fetch(`https://bdopenapi.vercel.app/api/geo/upazilas?district=${encodeURIComponent(dist)}`);
+  const data = await res.json();
+  thanaEl.innerHTML = '<option value="">Select Thana</option>';
+  data.forEach(u => {
+    let opt = document.createElement("option");
+    opt.value = u.name;
+    opt.textContent = u.name;
+    thanaEl.appendChild(opt);
+  });
 
-  // Set delivery charge
-  let deliveryCharge = (dist==="Dhaka") ? 60 : 120;
-  document.getElementById("deliveryCharge").innerText = deliveryCharge;
+  // Delivery charge logic
+  let charge = (dist === "Dhaka") ? 60 : 120;
+  document.getElementById("deliveryCharge").innerText = charge;
   updateTotal();
 }
 
-// Update total price
+// Total calculation
 function updateTotal(){
-  let productPrice = parseInt(document.getElementById("product").value);
-  let qty = parseInt(document.getElementById("qty").value);
-  let delivery = parseInt(document.getElementById("deliveryCharge").innerText);
-  let total = (productPrice * qty) + delivery;
-  document.getElementById("total").innerText = total;
+  let p = parseInt(document.getElementById("product").value);
+  let q = parseInt(document.getElementById("qty").value);
+  let d = parseInt(document.getElementById("deliveryCharge").innerText);
+  document.getElementById("total").innerText = (p * q) + d;
 }
 
-// Send order function
+// Send order
 function sendOrder(){
   let name = document.getElementById("name").value;
   let phone = document.getElementById("phone").value;
@@ -126,13 +114,11 @@ function sendOrder(){
   }
 
   let msg = encodeURIComponent(
-    `🛒 New Order\n\n👤 Name: ${name}\n📞 Phone: ${phone}\n📞 Alt: ${altphone}\n📍 District: ${district}\n🏘 Thana: ${thana}\n🏠 Address: ${address}\n📦 Product: ${productText}\n🔢 Qty: ${qty}\n🚚 Delivery Charge: ${deliveryCharge} Taka\n💰 Total: ${total} Taka`
+    `🛒 New Order\n\n👤 Name: ${name}\n📞 Phone: ${phone}\n📍 District: ${district}\n🏘 Thana: ${thana}\n🏠 Address: ${address}\n📦 Product: ${productText}\n🔢 Qty: ${qty}\n🚚 Delivery: ${deliveryCharge} Taka\n💰 Total: ${total} Taka`
   );
+  window.open("https://wa.me/8801980236917?text="+msg, "_blank");
 
-  let win = window.open("https://wa.me/8801980236917?text="+msg,"_blank");
-  if(win) win.focus();
-
-  // Send order to Google Sheet
+  // Save to Google Sheet
   fetch("WEB_APP_URL_HERE", {
     method:"POST",
     headers: {"Content-Type":"application/json"},
@@ -140,16 +126,13 @@ function sendOrder(){
       name, phone, altphone, district, thana, address,
       product: productText, qty, delivery: deliveryCharge, total
     })
-  })
-  .then(res=>res.json())
-  .then(data=>console.log(data))
-  .catch(err=>console.error(err));
+  });
 
-  let proceed = confirm("WhatsApp খুলেছে। Message পাঠানোর পর Success page এ যেতে OK চাপুন।");
-  if(proceed) window.location.href="success.html";
+  if(confirm("WhatsApp খুলেছে। Message পাঠানোর পর OK চাপুন Success page এ যেতে।")){
+    window.location.href="success.html";
+  }
 }
 
-// Initialize
 updateTotal();
 </script>
 
