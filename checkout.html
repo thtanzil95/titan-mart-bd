@@ -6,103 +6,77 @@
 <title>Checkout | Titan Mart BD</title>
 
 <style>
-body{
-  font-family: Arial, sans-serif;
-  background:#f2f2f2;
+body{font-family:Arial;background:#f2f2f2}
+.box{
+max-width:520px;margin:30px auto;background:#fff;
+padding:20px;border-radius:8px
 }
-.container{
-  max-width:500px;
-  margin:30px auto;
-  background:#fff;
-  padding:20px;
-  border-radius:8px;
+h2{text-align:center;color:#ff4c00}
+label{font-weight:bold;margin-top:10px;display:block}
+input,select,textarea{
+width:100%;padding:10px;margin-top:5px;
+border:1px solid #ccc;border-radius:5px
 }
-h2{
-  text-align:center;
-  color:#ff4c00;
+textarea{resize:none}
+.summary{
+background:#f9f9f9;padding:12px;margin-top:15px;border-radius:6px
 }
-label{
-  font-weight:bold;
-  margin-top:10px;
-  display:block;
-}
-input, select, textarea{
-  width:100%;
-  padding:10px;
-  margin-top:5px;
-  border:1px solid #ccc;
-  border-radius:5px;
-}
-textarea{
-  resize:none;
-}
-.order-box{
-  background:#f9f9f9;
-  padding:10px;
-  margin-top:15px;
-  border-radius:5px;
-}
+.summary p{margin:5px 0;font-weight:bold}
 button{
-  margin-top:15px;
-  width:100%;
-  padding:12px;
-  font-size:16px;
-  background:#25D366;
-  color:#fff;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
+margin-top:15px;width:100%;padding:12px;
+font-size:16px;background:#25D366;color:#fff;
+border:none;border-radius:6px;cursor:pointer
 }
-button:hover{
-  background:#128c3e;
-}
-.note{
-  font-size:13px;
-  color:#555;
-  margin-top:10px;
-  text-align:center;
-}
+button:hover{background:#128c3e}
+.note{text-align:center;font-size:13px;color:#555;margin-top:10px}
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="box">
 <h2>Checkout</h2>
 
-<form onsubmit="sendOrder(); return false;">
+<form onsubmit="sendOrder();return false;">
 
 <label>Full Name</label>
-<input type="text" id="name" required>
+<input id="name" required>
 
 <label>Phone Number</label>
-<input type="tel" id="phone" required>
+<input id="phone" required>
 
-<label>Alternative Phone (optional)</label>
-<input type="tel" id="altphone">
+<label>Alternative Phone</label>
+<input id="altphone">
 
 <label>District</label>
-<input type="text" id="district" required>
+<input id="district" required>
 
-<label>Full Delivery Address</label>
+<label>Full Address</label>
 <textarea id="address" rows="3" required></textarea>
 
-<label>Select Product</label>
-<select id="product">
-  <option>Arc Lighter – ৳850</option>
-  <option>Nose Hair Trimmer – ৳840</option>
+<label>Product</label>
+<select id="product" onchange="calculate()">
+<option value="850">Arc Lighter – ৳850</option>
+<option value="840">Nose Hair Trimmer – ৳840</option>
 </select>
 
 <label>Quantity</label>
-<select id="qty">
-  <option>1</option>
-  <option>2</option>
-  <option>3</option>
+<select id="qty" onchange="calculate()">
+<option>1</option>
+<option>2</option>
+<option>3</option>
 </select>
 
-<div class="order-box">
-<b>Payment Method:</b><br>
-bKash / Nagad (Cash on Delivery available)
+<label>Delivery</label>
+<select id="delivery" onchange="calculate()">
+<option value="80">Inside Dhaka – ৳80</option>
+<option value="150">Outside Dhaka – ৳150</option>
+</select>
+
+<div class="summary">
+<p>Subtotal: ৳<span id="subtotal">0</span></p>
+<p>Delivery: ৳<span id="dcharge">0</span></p>
+<p>Total: ৳<span id="total">0</span></p>
 </div>
 
 <button type="submit">Confirm Order</button>
@@ -110,32 +84,41 @@ bKash / Nagad (Cash on Delivery available)
 </form>
 
 <p class="note">
-Order submit করলে WhatsApp খুলবে ✔<br>
+Payment: bKash / Nagad / Cash on Delivery<br>
 Support: 01980236917
 </p>
 </div>
 
 <script>
+function calculate(){
+let price = Number(product.value);
+let qty = Number(document.getElementById("qty").value);
+let del = Number(delivery.value);
+
+let sub = price * qty;
+let total = sub + del;
+
+subtotal.innerText = sub;
+dcharge.innerText = del;
+document.getElementById("total").innerText = total;
+}
+
+calculate();
+
 function sendOrder(){
-  var name = document.getElementById("name").value;
-  var phone = document.getElementById("phone").value;
-  var alt = document.getElementById("altphone").value;
-  var district = document.getElementById("district").value;
-  var address = document.getElementById("address").value;
-  var product = document.getElementById("product").value;
-  var qty = document.getElementById("qty").value;
+let msg =
+"🛒 New Order%0A%0A"+
+"👤 Name: "+name.value+"%0A"+
+"📞 Phone: "+phone.value+"%0A"+
+"📞 Alt: "+altphone.value+"%0A"+
+"📍 District: "+district.value+"%0A"+
+"🏠 Address: "+address.value+"%0A%0A"+
+"📦 Product: "+product.options[product.selectedIndex].text+"%0A"+
+"🔢 Qty: "+qty.value+"%0A"+
+"🚚 Delivery: "+delivery.options[delivery.selectedIndex].text+"%0A"+
+"💰 Total: ৳"+document.getElementById("total").innerText;
 
-  var msg =
-  "🛒 New Order%0A%0A"+
-  "👤 Name: "+name+"%0A"+
-  "📞 Phone: "+phone+"%0A"+
-  "📞 Alt Phone: "+alt+"%0A"+
-  "📍 District: "+district+"%0A"+
-  "🏠 Address: "+address+"%0A%0A"+
-  "📦 Product: "+product+"%0A"+
-  "🔢 Quantity: "+qty;
-
-  window.open("https://wa.me/8801980236917?text="+msg);
+window.open("https://wa.me/8801980236917?text="+msg);
 }
 </script>
 
