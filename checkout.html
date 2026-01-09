@@ -1,104 +1,143 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>চেকআউট - Titan Mart BD</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .payment-info {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            margin-top: 20px;
-        }
-        .payment-info h3 {
-            border-bottom: 2px solid #ff5722;
-            padding-bottom: 10px;
-            color: #333;
-        }
-        .account-details {
-            margin: 15px 0;
-            padding: 10px;
-            background: #f9f9f9;
-            border: 1px dashed #ccc;
-        }
-        .account-details p {
-            margin: 5px 0;
-            font-size: 1.1em;
-            font-weight: bold;
-        }
-        .whatsapp-btn {
-            background-color: #25D366; 
-            margin-top: 20px;
-            padding: 15px;
-            font-size: 1.2em;
-            display: block;
-            text-align: center;
-            text-decoration: none;
-            color: white;
-            border-radius: 8px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout | Titan Mart BD</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f2f2f2;
+}
+.container{
+  max-width:500px;
+  margin:30px auto;
+  background:#fff;
+  padding:20px;
+  border-radius:8px;
+}
+h2{
+  text-align:center;
+  color:#ff4c00;
+}
+label{
+  font-weight:bold;
+  margin-top:10px;
+  display:block;
+}
+input, select, textarea{
+  width:100%;
+  padding:10px;
+  margin-top:5px;
+  border:1px solid #ccc;
+  border-radius:5px;
+}
+textarea{
+  resize:none;
+}
+.order-box{
+  background:#f9f9f9;
+  padding:10px;
+  margin-top:15px;
+  border-radius:5px;
+}
+button{
+  margin-top:15px;
+  width:100%;
+  padding:12px;
+  font-size:16px;
+  background:#25D366;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+button:hover{
+  background:#128c3e;
+}
+.note{
+  font-size:13px;
+  color:#555;
+  margin-top:10px;
+  text-align:center;
+}
+</style>
 </head>
+
 <body>
-    <header>
-        <div class="nav-container">
-            <h1>Titan Mart BD</h1>
-            <a href="index.html" id="back-to-shop-btn" class="btn">কেনাকাটা চালিয়ে যান</a>
-        </div>
-    </header>
-    <main class="container">
-        <h2>চেকআউট ও পেমেন্ট প্রক্রিয়া</h2>
-        <div class="payment-info">
-            <p>আপনার মোট অর্ডারের দাম: ৳ <strong id="checkout-total-display">0</strong></p>
-            <p>অনুগ্রহ করে নিচের ধাপগুলো অনুসরণ করে আপনার অর্ডার সম্পন্ন করুন।</p>
-            
-            <h3>১. পেমেন্ট করুন (মার্চেন্ট অ্যাকাউন্ট)</h3>
-            <p>আপনার পছন্দের মাধ্যমে অর্ডারের মোট টাকা পরিশোধ করুন:</p>
 
-            <div class="account-details" style="background: #ffebe5;">
-                <h4>বিকাশ মার্চেন্ট</h4>
-                <p>নম্বর: $01980236917$</p>
-                <p style="color: #ff5722;">**পেমেন্ট (Payment) অপশন ব্যবহার করুন।**</p>
-            </div>
+<div class="container">
+<h2>Checkout</h2>
 
-            <div class="account-details" style="background: #e5f5ff;">
-                <h4>নগদ মার্চেন্ট</h4>
-                <p>নম্বর: $01980236917$</p>
-                <p style="color: #11a2f6;">**পেমেন্ট (Payment) অপশন ব্যবহার করুন।**</p>
-            </div>
-            
-            <h3>২. হোয়াটসঅ্যাপে নিশ্চিত করুন</h3>
-            <p>টাকা পাঠানোর পর, অনুগ্রহ করে নিচে দেওয়া হোয়াটসঅ্যাপ বাটনে ক্লিক করুন এবং ট্রানজেকশন আইডি (TxID) দিন।</p>
+<form onsubmit="sendOrder(); return false;">
 
-            <a id="whatsapp-link" href="#" target="_blank" class="whatsapp-btn">
-                অর্ডার নিশ্চিত করতে হোয়াটসঅ্যাপে যান
-            </a>
-        </div>
-    </main>
+<label>Full Name</label>
+<input type="text" id="name" required>
 
-    <script>
-        // জাভাস্ক্রিপ্ট ব্যবহার করে কার্টের ডেটা এই পেজে লোড করা হবে
-        const cart = JSON.parse(localStorage.getItem('titanMartCart')) || [];
-        const checkoutTotalDisplay = document.getElementById('checkout-total-display');
-        const whatsappLink = document.getElementById('whatsapp-link');
-        
-        let totalPrice = 0;
-        let itemDetails = "";
+<label>Phone Number</label>
+<input type="tel" id="phone" required>
 
-        cart.forEach(item => {
-            totalPrice += item.price * item.quantity;
-            itemDetails += `${item.name} (${item.quantity}টি) - ৳${item.price * item.quantity}%0A`;
-        });
+<label>Alternative Phone (optional)</label>
+<input type="tel" id="altphone">
 
-        checkoutTotalDisplay.textContent = totalPrice.toLocaleString('bn-BD');
+<label>District</label>
+<input type="text" id="district" required>
 
-        // হোয়াটসঅ্যাপ লিংকের টেক্সট তৈরি করা
-        const whatsappMessage = `আমার Titan Mart BD অর্ডারের বিবরণ:%0Aমোট দাম: ৳${totalPrice.toLocaleString('bn-BD')}%0A%0Aআইটেম:%0A${itemDetails}%0A%0Aআমার নাম: %0Aআমার ঠিকানা: %0Aট্রানজেকশন আইডি (TxID): `;
-        
-        whatsappLink.href = `https://wa.me/88$01980236917$?text=${whatsappMessage}`;
-    </script>
+<label>Full Delivery Address</label>
+<textarea id="address" rows="3" required></textarea>
+
+<label>Select Product</label>
+<select id="product">
+  <option>Arc Lighter – ৳850</option>
+  <option>Nose Hair Trimmer – ৳840</option>
+</select>
+
+<label>Quantity</label>
+<select id="qty">
+  <option>1</option>
+  <option>2</option>
+  <option>3</option>
+</select>
+
+<div class="order-box">
+<b>Payment Method:</b><br>
+bKash / Nagad (Cash on Delivery available)
+</div>
+
+<button type="submit">Confirm Order</button>
+
+</form>
+
+<p class="note">
+Order submit করলে WhatsApp খুলবে ✔<br>
+Support: 01980236917
+</p>
+</div>
+
+<script>
+function sendOrder(){
+  var name = document.getElementById("name").value;
+  var phone = document.getElementById("phone").value;
+  var alt = document.getElementById("altphone").value;
+  var district = document.getElementById("district").value;
+  var address = document.getElementById("address").value;
+  var product = document.getElementById("product").value;
+  var qty = document.getElementById("qty").value;
+
+  var msg =
+  "🛒 New Order%0A%0A"+
+  "👤 Name: "+name+"%0A"+
+  "📞 Phone: "+phone+"%0A"+
+  "📞 Alt Phone: "+alt+"%0A"+
+  "📍 District: "+district+"%0A"+
+  "🏠 Address: "+address+"%0A%0A"+
+  "📦 Product: "+product+"%0A"+
+  "🔢 Quantity: "+qty;
+
+  window.open("https://wa.me/8801980236917?text="+msg);
+}
+</script>
+
 </body>
 </html>
