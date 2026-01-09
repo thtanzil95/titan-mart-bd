@@ -50,8 +50,8 @@ button:hover{background:#e04300;}
     <select id="qty">
       <option value="1"> 1</option>
       <option value="2"> 2</option>
-      <option value="5"> 5</option>
-      <option value="10"> 10</option>
+      <option value="3"> 3</option>
+      <option value="4"> 4</option>
     </select>
 
     <!-- Delivery & Total -->
@@ -88,11 +88,15 @@ function placeOrder(){
     return;
   }
 
-  let delivery = (district.trim()==="ঢাকা")?60
-    
+  let delivery = 120; // default outside Dhaka
+  if(district.trim() === "ঢাকা"){ 
+    delivery = 60;
+  }
+
   const total = price*qty + delivery;
   const id = orderID();
 
+  // Live date & time
   const now = new Date();
   const date = now.toLocaleDateString('bn-BD', {day:'2-digit', month:'2-digit', year:'numeric'});
   const time = now.toLocaleTimeString('en-US', {hour12:false});
@@ -161,8 +165,9 @@ function populateThana(){
 // Calculate total with delivery
 function calc(){
   const qty=parseInt(document.getElementById("qty").value);
-  const dist=document.getElementById("district").value;
-  let delivery=(dist.trim()==="ঢাকা")?60:120;
+  const dist=document.getElementById("district").value.trim();
+  let delivery=120;
+  if(dist==="ঢাকা"){delivery=60;}
   document.getElementById("delivery").innerText=delivery;
   document.getElementById("total").innerText=price*qty+delivery;
 }
@@ -190,4 +195,3 @@ document.getElementById("thanaSearch").oninput=function(){
 </script>
 </body>
 </html>
-
