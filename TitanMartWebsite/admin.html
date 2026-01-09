@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+<style>
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid #ccc;padding:8px;text-align:center;}
+th{background:#ff4c00;color:white;}
+select{padding:5px;}
+</style>
+</head>
+<body>
+<h2>Admin Dashboard</h2>
+
+<table id="ordersTable">
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Phone</th>
+<th>Product</th>
+<th>Qty</th>
+<th>Total</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<script>
+const sheetJSON = "https://script.google.com/macros/s/AKfycby5V0I5F9YnVvhoreIlw298ISDYD-YxihexMmDVRuRKARkjdDI5_FAIstKovxLvUvCQZA/exec";  // <-- Web App URL বসাও
+
+async function loadOrders(){
+  const res = await fetch(sheetJSON);
+  const data = await res.json();
+  const tbody = document.querySelector("#ordersTable tbody");
+  tbody.innerHTML="";
+
+  data.forEach((order,i)=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML=`
+      <td>${i+1}</td>
+      <td>${order.Name}</td>
+      <td>${order.Phone}</td>
+      <td>${order.Product}</td>
+      <td>${order.Qty}</td>
+      <td>${order.Total}</td>
+      <td>
+        <select onchange="updateStatus(${i+2}, this.value)">
+          <option ${order.Status=="Pending"?"selected":""}>Pending</option>
+          <option ${order.Status=="Processing"?"selected":""}>Processing</option>
+          <option ${order.Status=="Shipped"?"selected":""}>Shipped</option>
+          <option ${order.Status=="Delivered"?"selected":""}>Delivered</option>
+        </select>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateStatus(row,status){
+  fetch(`${sheetJSON}?row=${row}&status=${status}`)
+    .then(res=>res.text())
+    .then(console.log);
+}
+
+loadOrders();
+</script>
+
+</body>
+</html>
