@@ -55,7 +55,7 @@ button:hover{background:#e04300;}
       <option value="4">4</option>
     </select>
 
-    <!-- Delivery & Total -->
+    <!-- Total -->
     <div class="info" style="font-weight:bold;"><b id="tLabel">মোট:</b> ৳ <span id="total"></span></div>
     <div class="delivery-info">ডেলিভারি চার্জ: Inside Dhaka 60 ৳ | Outside Dhaka 120 ৳</div>
 
@@ -68,137 +68,33 @@ button:hover{background:#e04300;}
 const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
 const price = parseInt(params.get("price"));
-
-// Set product name and price
 document.getElementById("product").innerText = product;
 document.getElementById("price").innerText = price;
 
 // Set product image
-let productImg = "";
-if(product==="Arc Lighter"){
-    productImg = "arc-lighter.jpg";
-}else if(product==="Nose Hair Trimmer"){
-    productImg = "nose-hair-trimmer.jpg";
-}else{
-    productImg = "default.jpg";
-}
-document.getElementById("productImg").src = productImg;
+let imgSrc = "";
+if(product==="Arc Lighter"){ imgSrc="arc-lighter.jpg"; }
+else if(product==="Nose Hair Trimmer"){ imgSrc="nose-hair-trimmer.jpg"; }
+else{ imgSrc="default.jpg"; }
+document.getElementById("productImg").src = imgSrc;
 
 // Unique Order ID
 function orderID(){ return "TM"+Math.floor(100000+Math.random()*900000); }
 
-// Place order
-function placeOrder(){
-  const name = document.getElementById("name").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const address = document.getElementById("address").value.trim();
-  const district = document.getElementById("district").value.trim();
-  const thana = document.getElementById("thana").value;
-  const qty = document.getElementById("qty").value;
-
-  if(!name || !phone || !address){
-    alert("দয়া করে নাম, মোবাইল এবং ঠিকানা পূরণ করুন!");
-    return;
-  }
-
-  let delivery = 120;
-  if(district === "ঢাকা"){ delivery = 60; }
-
-  const total = price*qty;
-
-  const id = orderID();
-  const now = new Date();
-  const date = now.toLocaleDateString('bn-BD', {day:'2-digit', month:'2-digit', year:'numeric'});
-  const time = now.toLocaleTimeString('en-US', {hour12:false});
-
-  // WhatsApp message
-  const msg = `Order ID: ${id}
-Date: ${date}
-Time: ${time}
-Name: ${name}
-Phone: ${phone}
-Address: ${address}
-District: ${district}
-Thana/Upazila: ${thana}
-Product: ${product}
-Quantity: ${qty}
-Delivery Charge: ৳${delivery}
-Total: ৳${total + delivery}`;
-
-  window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg), "_blank");
-
-  // Confirmation popup
-  const popupHtml = `
-    <html>
-      <head>
-        <title>Order Success | Titan Mart BD</title>
-        <style>
-          body{font-family:Arial,sans-serif;text-align:center;padding:30px;background:#fef9f4;}
-          h2{color:#ff4c00;}
-          .summary{background:#fff;padding:20px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.2);display:inline-block;text-align:left;}
-          .summary b{color:#ff4c00;}
-          .greeting{margin-top:15px;font-size:18px;color:#333;font-weight:500;}
-        </style>
-      </head>
-      <body>
-        <h2>🎉 অর্ডার সম্পন্ন! 🎉</h2>
-        <div class="summary">
-          <p><b>Order ID:</b> ${id}</p>
-          <p><b>Date:</b> ${date}</p>
-          <p><b>Time:</b> ${time}</p>
-          <p><b>Name:</b> ${name}</p>
-          <p><b>Phone:</b> ${phone}</p>
-          <p><b>Address:</b> ${address}</p>
-          <p><b>District:</b> ${district}</p>
-          <p><b>Thana/Upazila:</b> ${thana}</p>
-          <p><b>Product:</b> ${product}</p>
-          <p><b>Quantity:</b> ${qty}</p>
-          <p><b>Total:</b> ৳${total}</p>
-          <p><b>Delivery Charge:</b> Inside Dhaka 60 ৳ | Outside Dhaka 120 ৳</p>
-        </div>
-        <div class="greeting">
-          ধন্যবাদ! আপনার অর্ডার গ্রহণ করা হয়েছে। আমাদের প্রিমিয়াম সার্ভিসের মাধ্যমে শীঘ্রই ডেলিভারি নিশ্চিত করা হবে।
-        </div>
-      </body>
-    </html>
-  `;
-  const popup = window.open("", "_blank", "width=500,height=650");
-  popup.document.write(popupHtml);
-  popup.document.close();
-}
-
-// Bangla / English toggle
-let bn=true;
-function toggleLang(){
-  bn=!bn;
-  document.getElementById("title").innerText=bn?"চেকআউট":"Checkout";
-  document.getElementById("name").placeholder=bn?"আপনার নাম":"Your Name";
-  document.getElementById("phone").placeholder=bn?"মোবাইল নাম্বার":"Phone Number";
-  document.getElementById("address").placeholder=bn?"সম্পূর্ণ ঠিকানা":"Full Address";
-  document.getElementById("pLabel").innerText=bn?"পণ্য:":"Product:";
-  document.getElementById("prLabel").innerText=bn?"মূল্য:":"Price:";
-  document.getElementById("tLabel").innerText=bn?"মোট:":"Total:";
-  document.querySelector(".delivery-info").innerText=bn?"ডেলিভারি চার্জ: Inside Dhaka 60 ৳ | Outside Dhaka 120 ৳":"Delivery Charge: Inside Dhaka 60 ৳ | Outside Dhaka 120 ৳";
-  document.getElementById("dLabel").innerText=bn?"জেলা:":"District:";
-  document.getElementById("thLabel").innerText=bn?"থানা/উপজেলা:":"Thana/Upazila:";
-  document.getElementById("btn").innerText=bn?"অর্ডার কনফার্ম করুন":"Confirm Order";
-  document.querySelector(".lang-btn").innerText=bn?"EN":"BN";
-}
-
-// Load JSON upazila
+// Load Upazila JSON
 let upazilaData = {};
 fetch("bangladesh_upazilas.json")
 .then(resp=>resp.json())
-.then(data=>{upazilaData=data; populateDistricts();});
+.then(data=>{ upazilaData=data; populateDistricts(); });
 
-// Populate district
+// Populate districts
 function populateDistricts(){
   const sel=document.getElementById("district");
   Object.keys(upazilaData).forEach(d=>{
     let o=document.createElement("option"); o.value=d; o.text=d; sel.add(o);
   });
-  calc();
   populateThana();
+  calc();
 }
 
 // Populate thana
@@ -212,10 +108,14 @@ function populateThana(){
   calc();
 }
 
-// Calculate total (without delivery)
+// Calculate total
 function calc(){
   const qty=parseInt(document.getElementById("qty").value);
-  document.getElementById("total").innerText = price*qty;
+  const dist=document.getElementById("district").value.trim();
+  let delivery=120;
+  if(dist==="ঢাকা"){delivery=60;}
+  document.getElementById("delivery").innerText=delivery;
+  document.getElementById("total").innerText=price*qty+delivery;
 }
 
 document.getElementById("qty").onchange=calc;
@@ -238,6 +138,78 @@ document.getElementById("thanaSearch").oninput=function(){
     let o=document.createElement("option"); o.value=t; o.text=t; sel.add(o);
   });
 };
+
+// Place Order
+function placeOrder(){
+  const name=document.getElementById("name").value.trim();
+  const phone=document.getElementById("phone").value.trim();
+  const address=document.getElementById("address").value.trim();
+  const district=document.getElementById("district").value;
+  const thana=document.getElementById("thana").value;
+  const qty=parseInt(document.getElementById("qty").value);
+
+  if(!name||!phone||!address){ alert("দয়া করে নাম, মোবাইল এবং ঠিকানা পূরণ করুন!"); return; }
+
+  let delivery=120;
+  if(district==="ঢাকা"){delivery=60;}
+  const total=price*qty+delivery;
+  const id=orderID();
+  const now=new Date();
+  const date=now.toLocaleDateString('bn-BD',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const time=now.toLocaleTimeString('en-US',{hour12:false});
+
+  // WhatsApp auto-open
+  const msg=`Order ID: ${id}
+Date: ${date}
+Time: ${time}
+Name: ${name}
+Phone: ${phone}
+Address: ${address}
+District: ${district}
+Thana/Upazila: ${thana}
+Product: ${product}
+Quantity: ${qty}
+Delivery Charge: ৳${delivery}
+Total: ৳${total}`;
+
+  window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg),"_blank");
+
+  // Popup confirmation
+  const popupContent=`<html><head><title>Order Success</title></head><body style="font-family:Arial,sans-serif;text-align:center;padding:30px;background:#fef9f4;">
+  <h2 style="color:#ff4c00;">অর্ডার সফলভাবে নেওয়া হয়েছে!</h2>
+  <p>ধন্যবাদ, ${name}!</p>
+  <p><b>Order ID:</b> ${id}</p>
+  <p><b>Date:</b> ${date}</p>
+  <p><b>Time:</b> ${time}</p>
+  <p><b>Product:</b> ${product}</p>
+  <p><b>Quantity:</b> ${qty}</p>
+  <p><b>Delivery Charge:</b> ৳${delivery}</p>
+  <p><b>Total:</b> ৳${total}</p>
+  <p>ডেলিভারি চার্জ: Inside Dhaka 60 ৳ | Outside Dhaka 120 ৳</p>
+  <p>আপনার অর্ডারের জন্য ধন্যবাদ! আমরা খুব শীঘ্রই ডেলিভারি নিশ্চিত করব।</p>
+  </body></html>`;
+
+  const popup=window.open("","Order Success","width=400,height=600");
+  popup.document.write(popupContent);
+}
+
+// Bangla / English toggle
+let bn=true;
+function toggleLang(){
+  bn=!bn;
+  document.getElementById("title").innerText=bn?"চেকআউট":"Checkout";
+  document.getElementById("name").placeholder=bn?"আপনার নাম":"Your Name";
+  document.getElementById("phone").placeholder=bn?"মোবাইল নাম্বার":"Phone Number";
+  document.getElementById("address").placeholder=bn?"সম্পূর্ণ ঠিকানা":"Full Address";
+  document.getElementById("pLabel").innerText=bn?"পণ্য:":"Product:";
+  document.getElementById("prLabel").innerText=bn?"মূল্য:":"Price:";
+  document.getElementById("dChargeLabel")?.innerText=bn?"ডেলিভারি চার্জ:":"Delivery Charge:";
+  document.getElementById("tLabel").innerText=bn?"মোট:":"Total:";
+  document.getElementById("dLabel").innerText=bn?"জেলা:":"District:";
+  document.getElementById("thLabel").innerText=bn?"থানা/উপজেলা:":"Thana/Upazila:";
+  document.getElementById("btn").innerText=bn?"অর্ডার কনফার্ম করুন":"Confirm Order";
+  document.querySelector(".lang-btn").innerText=bn?"EN":"BN";
+}
 </script>
 </body>
 </html>
