@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Checkout</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:Arial;background:#f2f2f2}
+.form{background:#fff;max-width:400px;margin:30px auto;padding:20px;border-radius:8px}
+input,textarea,select{width:100%;padding:10px;margin:8px 0}
+button{background:#25D366;color:#fff;border:none;padding:12px;width:100%;border-radius:5px}
+</style>
+</head>
+
+<body>
+
+<div class="form">
+<h3>Checkout</h3>
+
+<form onsubmit="send();return false;">
+<input id="name" placeholder="Your Name" required>
+<input id="phone" placeholder="Phone Number" required>
+
+<select id="product">
+<option>LED Light - 500৳</option>
+<option>Extension Board - 750৳</option>
+</select>
+
+<textarea id="address" placeholder="Address" required></textarea>
+
+<button>Place Order</button>
+</form>
+
+<p>Payment: bKash / Nagad</p>
+</div>
+
+<script>
+function send(){
+var m =
+"New Order%0A"+
+"Name: "+name.value+"%0A"+
+"Phone: "+phone.value+"%0A"+
+"Product: "+product.value+"%0A"+
+"Address: "+address.value;
+
+window.open("https://wa.me/8801980236917?text="+m);
+}
+</script>
+
+</body>
+</html>
