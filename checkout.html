@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checkout | Titan Mart</title>
 <style>
-body{font-family:Arial, background:#f7f7f7; padding:20px;}
-form{max-width:550px;margin:auto;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+body{font-family:Arial,sans-serif; background:#f7f7f7; padding:20px;}
+form{max-width:600px;margin:auto;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
 input,select{width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:5px;}
 button{background:#ff4c00;color:white;padding:12px;border:none;border-radius:5px;cursor:pointer;font-size:16px;}
 button:hover{background:#e24300;}
@@ -23,13 +23,13 @@ button:hover{background:#e24300;}
   Alt Phone:<input id="altphone" type="text">
 
   District:
-  <select id="district" onchange="loadUpazilas()" required>
-    <option value="">Loading districts...</option>
+  <select id="district" onchange="updateThanaAndDelivery()" required>
+    <option value="">Select District</option>
   </select>
 
   Thana/Upazila:
   <select id="thana" required>
-    <option value="">Select district first</option>
+    <option value="">Select Thana</option>
   </select>
 
   Address:<input id="address" type="text" required>
@@ -49,59 +49,104 @@ button:hover{background:#e24300;}
 </form>
 
 <script>
-// Load all districts from API
-async function loadDistricts(){
-  const res = await fetch("https://bdopenapi.vercel.app/api/geo/districts");
-  const data = await res.json();
-  const distEl = document.getElementById("district");
-  distEl.innerHTML = '<option value="">Select District</option>';
-  data.forEach(d => {
-    let opt = document.createElement("option");
-    opt.value = d.name;
-    opt.textContent = d.name;
-    distEl.appendChild(opt);
-  });
-}
-loadDistricts();
+// ======= Bangladesh District + Upazila Data =======
+const bangladeshUpazilas = {
+  "Dhaka":["Dhamrai","Dohar","Keraniganj","Nawabganj","Savar","Adabar","Badda","Gulshan","Kafrul","Tejgaon","Uttara","Mirpur","Motijheel","Sher-e-Bangla Nagar"],
+  "Chattogram":["Anwara","Banshkhali","Boalkhali","Chandanaish","Fatikchhari","Hathazari","Lohagara","Mirsharai","Patiya","Rangunia","Sandwip","Satkania","Sitakunda","Cox's Bazar Sadar","Kutubdia","Maheshkhali","Ramu","Teknaf","Ukhia"],
+  "Rajshahi":["Bagha","Bagmara","Charghat","Durgapur","Godagari","Mohanpur","Paba","Puthia","Tanore"],
+  "Khulna":["Batiaghata","Dumuria","Dacope","Phultala","Koyra","Paikgachha","Rupsha","Terokhada"],
+  "Sylhet":["Beanibazar","Bishwanath","Golapganj","Gowainghat","Jaintiapur","Kanaighat","Sylhet Sadar"],
+  "Barishal":["Barishal Sadar","Babuganj","Banaripara","Gournadi","Agailjhara","Bakerganj","Hizla","Mehendiganj","Muladi","Uzirpur"],
+  "Rangpur":["Rangpur Sadar","Badarganj","Gangachhara","Mithapukur","Kaunia","Pirgachha","Taraganj"],
+  "Mymensingh":["Mymensingh Sadar","Bhaluka","Trishal","Phulpur","Muktagachha","Gaffargaon","Haluaghat","Ishwarganj","Nandail","Bishwamvarpur"],
+  "Bagerhat":["Bagerhat Sadar","Chitalmari","Fakirhat","Kachua","Mollahat","Mongla","Morrelganj","Rampal","Sarankhola"],
+  "Barguna":["Amtali","Bamna","Barguna Sadar","Betagi","Patharghata","Taltali"],
+  "Bhola":["Bhola Sadar","Burhanuddin","Char Fasson","Daulatkhan","Lalmohan","Manpura","Tazumuddin"],
+  "Bogra":["Adamdighi","Bogura Sadar","Dhunat","Dhupchanchia","Gabtali","Kahaloo","Nandigram","Shajahanpur","Sariakandi","Shibganj","Sherpur","Sonatala"],
+  "Brahmanbaria":["Akhaura","Ashuganj","B. Bazaar","Bancharampur","Nabinagar","Nasirnagar","Sarail"],
+  "Chandpur":["Chandpur Sadar","Faridganj","Haimchar","Haziganj","Kachua","Matlab Dakshin","Matlab Uttar","Shahrasti"],
+  "Comilla":["Barura","Brahmanpara","Burichang","Chandina","Chauddagram","Comilla Adarsha Sadar","Daudkandi","Laksam","Monoharganj","Nawabganj","Muradnagar","Titas"],
+  "Faridpur":["Alfadanga","Bhanga","Boalmari","Char Bhadrasan","Faridpur Sadar","Madhukhali","Nagarkanda","Saltha"],
+  "Feni":["Chhagalnaiya","Daganbhuiyan","Feni Sadar","Parshuram","Sonagazi"],
+  "Gaibandha":["Gaibandha Sadar","Palashbari","Sundarganj","Gobindaganj","Sadullapur"],
+  "Gazipur":["Gazipur Sadar","Kaliakair","Kapasia","Sreepur"],
+  "Gopalganj":["Gopalganj Sadar","Kotalipara","Muksudpur","Kashiani","Tungipara"],
+  "Habiganj":["Ajmiriganj","Bahubal","Baniyachong","Chunarughat","Habiganj Sadar","Lakhai","Madhabpur"],
+  "Jamalpur":["Baksiganj","Dewanganj","Islampur","Jamalpur Sadar","Melandah","Sarishabari","Sherpur"],
+  "Jessore":["Abhaynagar","Bagherpara","Jhikargachha","Jessore Sadar","Keshabpur","Manirampur","Sharsha"],
+  "Jhalokathi":["Jhalokathi Sadar","Kathalia","Nalchity","Rajapur"],
+  "Khagrachari":["Alikadam","Dighinala","Khagrachari Sadar","Lakshmichhari","Mahalchhari","Manikchhari","Panchhari","Ramgarh"],
+  "Kishoreganj":["Bajitpur","Itna","Karimganj","Katiadi","Kishoreganj Sadar","Mithamain","Nikli","Pakundia","Tarail","Bhairab"],
+  "Kurigram":["Nageshwari","Phulbari","Rajarhat","Ulipur","Kurigram Sadar"],
+  "Lalmonirhat":["Aditmari","Hatibandha","Kaliganj","Lalmonirhat Sadar","Patgram"],
+  "Madaripur":["Kalkini","Madaripur Sadar","Rajoir","Shibchar"],
+  "Magura":["Magura Sadar","Mohammadpur","Sreepur","Shalikha"],
+  "Manikganj":["Manikganj Sadar","Singair","Harirampur","Gior"],
+  "Meherpur":["Meherpur Sadar","Mujibnagar","Gangni"],
+  "Moulvibazar":["Baralekha","Kamalganj","Kulaura","Moulvibazar Sadar","Rajnagar","Sreemangal"],
+  "Munshiganj":["Munshiganj Sadar","Lohajang","Sreenagar","Tongibari","Gazaria"],
+  "Narayanganj":["Araihazar","Bandar","Narayanganj Sadar","Rupganj","Sonargaon"],
+  "Narsingdi":["Belabo","Monohardi","Narsingdi Sadar","Palash","Raipura"],
+  "Narail":["Kalia","Lohagara","Narail Sadar"],
+  "Netrokona":["Atpara","Barhatta","Durgapur","Kendua","Kalmakanda","Netrokona Sadar","Purbadhala"],
+  "Nilphamari":["Dimla","Domar","Jaldhaka","Kishoreganj","Nilphamari Sadar","Saidpur"],
+  "Pabna":["Atghoria","Bera","Bhangura","Chatmohar","Ishwardi","Pabna Sadar","Santhia"],
+  "Patuakhali":["Dumki","Galachipa","Kalapara","Patuakhali Sadar","Rangabali","Zianagar"],
+  "Pirojpur":["Bhandaria","Kawkhali","Mathbaria","Pirojpur Sadar","Nazirpur","Nesarabad"],
+  "Rajbari":["Baliakandi","Goalanda","Pangsha","Rajbari Sadar"],
+  "Satkhira":["Assasuni","Debhata","Kaliganj","Satkhira Sadar","Tala"],
+  "Shariatpur":["Damudya","Gosairhat","Shariatpur Sadar","Naria","Bhedarganj"],
+  "Sherpur":["Jhenaigati","Nakla","Sherpur Sadar","Sreebardi"],
+  "Sirajganj":["Belkuchi","Chauhali","Kamarkhanda","Raiganj","Shahjadpur","Sirajganj Sadar","Ullahpara"],
+  "Sunamganj":["Bishwamvarpur","Chhatak","Derai","Dakshin Sunamganj","Sullah","Sunamganj Sadar","Tahirpur"],
+  "Tangail":["Basail","Ghatail","Mirzapur","Nagarpur","Sakhipur","Tangail Sadar"],
+  "Thakurgaon":["Boda","Ranisankail","Thakurgaon Sadar","Pirganj"]
+};
 
-// Load upazilas for selected district
-async function loadUpazilas(){
-  const dist = document.getElementById("district").value;
-  if(!dist) return;
-  const thanaEl = document.getElementById("thana");
-  thanaEl.innerHTML = '<option value="">Loading upazilas...</option>';
+// ======= Populate District Dropdown =======
+const districtEl = document.getElementById("district");
+const thanaEl = document.getElementById("thana");
 
-  const res = await fetch(`https://bdopenapi.vercel.app/api/geo/upazilas?district=${encodeURIComponent(dist)}`);
-  const data = await res.json();
+Object.keys(bangladeshUpazilas).forEach(dist=>{
+  let opt = document.createElement("option");
+  opt.value = dist;
+  opt.textContent = dist;
+  districtEl.appendChild(opt);
+});
+
+// ======= Update Thana Dropdown & Delivery =======
+function updateThanaAndDelivery(){
   thanaEl.innerHTML = '<option value="">Select Thana</option>';
-  data.forEach(u => {
-    let opt = document.createElement("option");
-    opt.value = u.name;
-    opt.textContent = u.name;
-    thanaEl.appendChild(opt);
-  });
-
-  // Delivery charge logic
-  let charge = (dist === "Dhaka") ? 60 : 120;
+  let dist = districtEl.value;
+  if(bangladeshUpazilas[dist]){
+    bangladeshUpazilas[dist].forEach(t=>{
+      let opt = document.createElement("option");
+      opt.value = t;
+      opt.textContent = t;
+      thanaEl.appendChild(opt);
+    });
+  }
+  // Delivery charge
+  let charge = (dist==="Dhaka")?60:120;
   document.getElementById("deliveryCharge").innerText = charge;
   updateTotal();
 }
 
-// Total calculation
+// ======= Total Calculation =======
 function updateTotal(){
   let p = parseInt(document.getElementById("product").value);
   let q = parseInt(document.getElementById("qty").value);
   let d = parseInt(document.getElementById("deliveryCharge").innerText);
-  document.getElementById("total").innerText = (p * q) + d;
+  document.getElementById("total").innerText = (p*q)+d;
 }
 
-// Send order
+// ======= Send Order =======
 function sendOrder(){
   let name = document.getElementById("name").value;
   let phone = document.getElementById("phone").value;
   let altphone = document.getElementById("altphone").value;
-  let district = document.getElementById("district").value;
-  let thana = document.getElementById("thana").value;
+  let district = districtEl.value;
+  let thana = thanaEl.value;
   let address = document.getElementById("address").value;
   let productText = document.getElementById("product").options[document.getElementById("product").selectedIndex].text;
   let qty = document.getElementById("qty").value;
@@ -113,13 +158,14 @@ function sendOrder(){
     return;
   }
 
+  // WhatsApp message
   let msg = encodeURIComponent(
     `🛒 New Order\n\n👤 Name: ${name}\n📞 Phone: ${phone}\n📍 District: ${district}\n🏘 Thana: ${thana}\n🏠 Address: ${address}\n📦 Product: ${productText}\n🔢 Qty: ${qty}\n🚚 Delivery: ${deliveryCharge} Taka\n💰 Total: ${total} Taka`
   );
   window.open("https://wa.me/8801980236917?text="+msg, "_blank");
 
   // Save to Google Sheet
-  fetch("WEB_APP_URL_HERE", {
+  fetch("https://script.google.com/macros/s/AKfycby5V0I5F9YnVvhoreIlw298ISDYD-YxihexMmDVRuRKARkjdDI5_FAIstKovxLvUvCQZA/exec", {
     method:"POST",
     headers: {"Content-Type":"application/json"},
     body: JSON.stringify({
@@ -135,6 +181,5 @@ function sendOrder(){
 
 updateTotal();
 </script>
-
 </body>
 </html>
