@@ -3,131 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Titan Mart BD - Admin Panel</title>
+<title>Titan Mart BD - Mini E-commerce</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #f0f0f0; padding:20px; }
-  #adminBtn { padding:10px 20px; font-size:16px; background:#007bff; color:#fff; border:none; cursor:pointer; border-radius:5px; }
-
-  #overlay {
-    display: none;
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    background: rgba(0,0,0,0.5); z-index: 500;
-  }
-
-  #adminPanel {
-    display: none;
-    position: fixed; top:50%; left:50%; transform: translate(-50%, -50%);
-    width: 500px; padding: 20px; background:#fff; border-radius:10px; box-shadow: 0 0 15px #000; z-index:1000;
-  }
-
-  #adminPanel h2 { text-align:center; color:#007bff; }
-  #adminPanel button { margin:5px 0; padding:10px; width:90%; border:none; border-radius:5px; cursor:pointer; background:#28a745; color:#fff; }
-  #closeBtn { background:#dc3545 !important; }
-
-  .listBox { border:1px solid #ccc; padding:10px; margin:10px 0; max-height:150px; overflow-y:auto; }
-  .listBox div { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee; }
-  .listBox div:last-child { border-bottom:none; }
+body { font-family: Arial; margin:0; padding:0; background:#f0f0f0;}
+header { background:#007bff; color:#fff; padding:15px; text-align:center;}
+#shop { display:flex; flex-wrap:wrap; justify-content:center; margin:20px;}
+.product { border:1px solid #ccc; background:#fff; padding:10px; margin:10px; width:200px; text-align:center; border-radius:5px;}
+.product button { margin-top:5px; padding:5px 10px; background:#28a745; color:#fff; border:none; border-radius:3px; cursor:pointer;}
+#adminBtn { position:fixed; top:15px; right:15px; padding:10px; background:#ffc107; border:none; border-radius:5px; cursor:pointer;}
+/* Admin Panel */
+#overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:500;}
+#adminPanel { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:500px; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 15px #000; z-index:1000; max-height:90%; overflow-y:auto;}
+#adminPanel h2 { text-align:center; color:#007bff;}
+#adminPanel input, #adminPanel button { width:90%; padding:5px; margin:5px 0;}
+#adminPanel .listBox { border:1px solid #ccc; padding:10px; max-height:150px; overflow-y:auto; margin-bottom:10px;}
+#adminPanel .listBox div { display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:3px 0;}
+#closeBtn { background:#dc3545; color:#fff; cursor:pointer; }
 </style>
 </head>
 <body>
 
-<h1>Welcome to Titan Mart BD</h1>
-<button id="adminBtn">Open Admin Panel</button>
+<header>
+<h1>Titan Mart BD</h1>
+</header>
 
+<button id="adminBtn">Admin Panel</button>
+
+<div id="shop">
+<!-- Products will appear here -->
+</div>
+
+<!-- Admin Panel -->
 <div id="overlay"></div>
-
 <div id="adminPanel">
-  <h2>Admin Panel</h2>
+<h2>Admin Panel</h2>
 
-  <!-- Product Management -->
-  <h3>Products</h3>
-  <input type="text" id="productName" placeholder="Product Name" style="width:85%; padding:5px;">
-  <button onclick="addProduct()">Add Product</button>
-  <div class="listBox" id="productList"></div>
+<h3>Products</h3>
+<input type="text" id="productName" placeholder="Product Name">
+<input type="number" id="productPrice" placeholder="Price">
+<button onclick="addProduct()">Add Product</button>
+<div class="listBox" id="productList"></div>
 
-  <!-- Orders Management -->
-  <h3>Orders</h3>
-  <input type="text" id="orderName" placeholder="Order Name" style="width:85%; padding:5px;">
-  <button onclick="addOrder()">Add Order</button>
-  <div class="listBox" id="orderList"></div>
+<h3>Orders</h3>
+<div class="listBox" id="orderList"></div>
 
-  <!-- Customers Management -->
-  <h3>Customers</h3>
-  <input type="text" id="customerName" placeholder="Customer Name" style="width:85%; padding:5px;">
-  <button onclick="addCustomer()">Add Customer</button>
-  <div class="listBox" id="customerList"></div>
+<h3>Customers</h3>
+<div class="listBox" id="customerList"></div>
 
-  <button id="closeBtn">Close Panel</button>
+<button id="closeBtn">Close Panel</button>
 </div>
 
 <script>
-  document.getElementById("adminBtn").addEventListener("click", function(){
-    let pass = prompt("Enter admin password:");
-    if(pass === "Titan123"){ 
-      document.getElementById("adminPanel").style.display = "block";
-      document.getElementById("overlay").style.display = "block";
-      loadData();
-    } else {
-      alert("Incorrect password!");
-    }
-  });
+// LocalStorage arrays
+let products = JSON.parse(localStorage.getItem('products')||'[]');
+let orders = JSON.parse(localStorage.getItem('orders')||'[]');
+let customers = JSON.parse(localStorage.getItem('customers')||'[]');
 
-  document.getElementById("closeBtn").addEventListener("click", function(){
-    document.getElementById("adminPanel").style.display = "none";
-    document.getElementById("overlay").style.display = "none";
-  });
+const shopDiv = document.getElementById('shop');
+const productList = document.getElementById('productList');
+const orderList = document.getElementById('orderList');
+const customerList = document.getElementById('customerList');
 
-  let products = [];
-  let orders = [];
-  let customers = [];
-
-  function loadData() {
-    products = JSON.parse(localStorage.getItem('products') || '[]');
-    orders = JSON.parse(localStorage.getItem('orders') || '[]');
-    customers = JSON.parse(localStorage.getItem('customers') || '[]');
-    updateList("productList", products);
-    updateList("orderList", orders);
-    updateList("customerList", customers);
-  }
-
-  function saveData() {
-    localStorage.setItem('products', JSON.stringify(products));
-    localStorage.setItem('orders', JSON.stringify(orders));
-    localStorage.setItem('customers', JSON.stringify(customers));
-  }
-
-  function addProduct() {
-    let name = document.getElementById("productName").value.trim();
-    if(name) { products.push(name); document.getElementById("productName").value=""; updateList("productList", products); saveData(); }
-  }
-
-  function addOrder() {
-    let name = document.getElementById("orderName").value.trim();
-    if(name) { orders.push(name); document.getElementById("orderName").value=""; updateList("orderList", orders); saveData(); }
-  }
-
-  function addCustomer() {
-    let name = document.getElementById("customerName").value.trim();
-    if(name) { customers.push(name); document.getElementById("customerName").value=""; updateList("customerList", customers); saveData(); }
-  }
-
-  function updateList(id, array) {
-    let container = document.getElementById(id);
-    container.innerHTML = "";
-    array.forEach((item, index) => {
-      let div = document.createElement("div");
-      div.innerHTML = `<span>${item}</span> <button onclick="deleteItem('${id}', ${index})" style="background:red; color:#fff; border:none; border-radius:3px; padding:2px 5px; cursor:pointer;">Delete</button>`;
-      container.appendChild(div);
+// Render Shop
+function renderShop() {
+    shopDiv.innerHTML = '';
+    products.forEach((p,i)=>{
+        let div = document.createElement('div');
+        div.className='product';
+        div.innerHTML = `<strong>${p.name}</strong><br>Price: ${p.price} BDT<br><button onclick="placeOrder(${i})">Order</button>`;
+        shopDiv.appendChild(div);
     });
-  }
+}
 
-  function deleteItem(id, index){
-    if(id==="productList") products.splice(index,1);
-    else if(id==="orderList") orders.splice(index,1);
-    else if(id==="customerList") customers.splice(index,1);
-    updateList(id, id==="productList"?products:id==="orderList"?orders:customers);
-    saveData();
-  }
+// Admin Panel
+document.getElementById('adminBtn').addEventListener('click',function(){
+    let pass = prompt("Enter admin password:");
+    if(pass==='Titan123'){
+        document.getElementById('adminPanel').style.display='block';
+        document.getElementById('overlay').style.display='block';
+        updateAdminLists();
+    } else alert('Incorrect password!');
+});
+
+document.getElementById('closeBtn').addEventListener('click',function(){
+    document.getElementById('adminPanel').style.display='none';
+    document.getElementById('overlay').style.display='none';
+});
+
+// Add Product
+function addProduct(){
+    let name = document.getElementById('productName').value.trim();
+    let price = document.getElementById('productPrice').value.trim();
+    if(name && price){
+        products.push({name,price});
+        localStorage.setItem('products',JSON.stringify(products));
+        document.getElementById('productName').value='';
+        document.getElementById('productPrice').value='';
+        renderShop();
+        updateAdminLists();
+    }
+}
+
+// Place Order
+function placeOrder(index){
+    let p = products[index];
+    let customerName = prompt("Enter your name for order:");
+    if(customerName){
+        orders.push({product:p.name, price:p.price, customer:customerName});
+        customers.push(customerName);
+        localStorage.setItem('orders',JSON.stringify(orders));
+        localStorage.setItem('customers',JSON.stringify([...new Set(customers)]));
+        alert(`Order placed for ${p.name}`);
+        updateAdminLists();
+    }
+}
+
+// Update Admin Lists
+function updateAdminLists(){
+    // Products
+    productList.innerHTML='';
+    products.forEach((p,i)=>{
+        let div = document.createElement('div');
+        div.innerHTML=`<span>${p.name} - ${p.price} BDT</span><button onclick="deleteProduct(${i})">Delete</button>`;
+        productList.appendChild(div);
+    });
+    // Orders
+    orderList.innerHTML='';
+    orders.forEach((o,i)=>{
+        let div = document.createElement('div');
+        div.innerHTML=`<span>${o.customer} ordered ${o.product} (${o.price} BDT)</span><button onclick="deleteOrder(${i})">Delete</button>`;
+        orderList.appendChild(div);
+    });
+    // Customers
+    customerList.innerHTML='';
+    [...new Set(customers)].forEach(c=>{
+        let div = document.createElement('div');
+        div.textContent=c;
+        customerList.appendChild(div);
+    });
+}
+
+// Delete functions
+function deleteProduct(i){ products.splice(i,1); localStorage.setItem('products',JSON.stringify(products)); renderShop(); updateAdminLists();}
+function deleteOrder(i){ orders.splice(i,1); localStorage.setItem('orders',JSON.stringify(orders)); updateAdminLists();}
+
+// Initial render
+renderShop();
 </script>
 
 </body>
