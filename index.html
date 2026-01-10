@@ -4,50 +4,28 @@
 <meta charset="UTF-8">
 <title>Titan Mart BD</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
-header{
-  background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:22px;position:relative;
-}
+header{background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:22px;position:relative;}
 .container{max-width:1100px;margin:auto;padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;}
 .card{background:#fff;padding:15px;border-radius:8px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
 .card img{width:100%;max-height:220px;object-fit:contain;}
 .price{color:#ff4c00;font-size:18px;font-weight:bold;margin-top:5px;}
 .btn{display:inline-block;margin-top:10px;padding:10px 15px;background:#ff4c00;color:#fff;text-decoration:none;border-radius:5px;cursor:pointer;}
-.top-social{position:fixed;top:15px;left:15px;display:flex;gap:10px;z-index:9999;}
-.top-social a{width:45px;height:45px;display:flex;align-items:center;justify-content:center;color:#fff;border-radius:50%;font-size:22px;text-decoration:none;box-shadow:0 4px 10px rgba(0,0,0,0.3);}
-.fb{background:#1877f2;}
-.wa{background:#25D366;}
-.cart-count{background:#fff;color:#ff4c00;font-size:12px;font-weight:bold;padding:2px 6px;border-radius:50%;position:absolute;top:-5px;right:-5px;}
 </style>
 </head>
 <body>
 
-<!-- Social buttons -->
-<div class="top-social">
-  <a class="fb" href="https://www.facebook.com/share/14Sd48q5kpU/" target="_blank"><i class="fab fa-facebook-f"></i></a>
-  <a class="wa" href="https://wa.me/8801980236917" target="_blank"><i class="fab fa-whatsapp"></i></a>
-</div>
+<header>Titan Mart BD</header>
 
-<header>
-  Titan Mart BD
-  <a href="cart.html" style="position:absolute;right:15px;top:15px;">
-    🛒 Cart <span id="cartCount" class="cart-count">0</span>
-  </a>
-</header>
-
-<div class="container" id="productContainer">
-  <!-- Products injected by JS -->
-</div>
+<div class="container" id="productContainer"></div>
 
 <script>
 // Products array
 const products = [
-  { name: "Arc Lighter", price: 850, image: "arc-lighter.jpg" },
-  { name: "Nose Hair Trimmer", price: 840, image: "nose-hair-trimmer.jpg" }
+  {name:"Arc Lighter", price:850, image:"arc-lighter.jpg"},
+  {name:"Nose Hair Trimmer", price:840, image:"nose-hair-trimmer.jpg"}
 ];
 
 // Render products
@@ -65,12 +43,10 @@ products.forEach((p,i)=>{
   container.appendChild(card);
 });
 
-// LocalStorage cart
+// Cart using localStorage
 function getCart(){return JSON.parse(localStorage.getItem("cart")||"[]");}
-function setCart(c){localStorage.setItem("cart",JSON.stringify(c));updateCartCount();}
-function updateCartCount(){document.getElementById("cartCount").innerText=getCart().length;}
+function setCart(c){localStorage.setItem("cart",JSON.stringify(c));}
 
-// Add to cart
 function addToCart(index){
   const cart = getCart();
   const product = products[index];
@@ -80,15 +56,11 @@ function addToCart(index){
   alert(product.name+" added to cart");
 }
 
-// Buy Now -> direct checkout
 function buyNow(index){
-  const product = products[index];
-  // Save only this product in localStorage for checkout
-  localStorage.setItem("buyNow", JSON.stringify({...product, qty:1}));
-  window.location.href="checkout.html";
+  const p=products[index];
+  window.location.href=`checkout.html?product=${encodeURIComponent(p.name)}&price=${p.price}`;
 }
-
-updateCartCount();
 </script>
+
 </body>
 </html>
