@@ -165,10 +165,20 @@ Delivery Charge: ৳${delivery}
 Total: ৳${total}`;
 
   window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg),"_blank");
+  
+// Send to Google Sheet
+  fetch("https://script.google.com/macros/s/AKfycbyRGsQ8Alu7YlcaENawN28-aWJT2ER-OGDmVvIpuUbcne3Tj20ZyZRnwPsCO8VF0mXyRQ/exec",{
+    method:"POST",
+    body: JSON.stringify({orderId:id,date:date,time:time,name:name,phone:phone,address:address,district:district,thana:thana,product:productName,qty:qty,delivery:delivery,total:total})
+  }).then(r=>r.text()).then(console.log).catch(console.error);
 }
+</script>
+</body>
+</html>
 
 // Update total on qty change
 document.getElementById("qty").addEventListener("change",calc);
 </script>
 </body>
 </html>
+
