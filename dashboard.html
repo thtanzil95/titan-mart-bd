@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dashboard</title>
+</head>
+<body>
+
+<h2>Welcome Admin</h2>
+
+<ul>
+  <li><a href="orders.html">📦 View Orders</a></li>
+  <li><a href="checkout.html">🛒 New Order</a></li>
+  <li><button onclick="logout()">Logout</button></li>
+</ul>
+
+<script>
+if(localStorage.getItem("login")!=="yes"){
+  window.location.href="login.html";
+}
+function logout(){
+  localStorage.removeItem("login");
+  location.href="login.html";
+}
+</script>
+
+</body>
+</html>
