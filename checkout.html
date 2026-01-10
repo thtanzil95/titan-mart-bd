@@ -2,48 +2,195 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Checkout | Titan Mart BD</title>
+<title>Titan Mart BD | Checkout</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="assets/css/style.css">
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
+.container{max-width:720px;margin:40px auto;padding:0;}
+.card{background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.15);padding:25px;animation:fadeIn 0.4s;}
+h2{text-align:center;color:#ff4c00;margin-bottom:20px;font-weight:600;}
+input,select{width:100%;padding:12px;margin-top:10px;border:1px solid #ccc;border-radius:8px;transition:0.3s;}
+input:focus,select:focus{border-color:#ff4c00;outline:none;box-shadow:0 0 6px rgba(255,76,0,0.3);}
+button{width:100%;padding:15px;margin-top:20px;background:#ff4c00;color:#fff;border:none;font-size:16px;border-radius:8px;cursor:pointer;transition:0.3s;}
+button:hover{background:#e04300;}
+.info{margin-top:12px;}
+.product-img{width:100%;max-height:260px;object-fit:contain;margin-top:15px;border-radius:10px;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+.delivery-info{font-size:13px;color:#555;margin-top:5px;}
+</style>
 </head>
 <body>
 
 <div class="container">
-  <h2>Checkout</h2>
+  <div class="card">
+    <h2>Checkout</h2>
 
-  <input id="name" placeholder="Your Name">
-  <input id="phone" placeholder="Phone Number">
-  <input id="address" placeholder="Full Address">
+    <!-- Customer Info -->
+    <input id="name" placeholder="Your Name" required>
+    <input id="phone" placeholder="Phone Number" required>
+    <input id="address" placeholder="Full Address" required>
 
-  <div class="info">
-    <b>District:</b>
-    <input type="text" id="districtSearch" placeholder="Search District">
-    <select id="district"></select>
+    <!-- District & Upazila -->
+    <div class="info">
+      <b>District:</b>
+      <input type="text" id="districtSearch" placeholder="Search district...">
+      <select id="district"></select>
+    </div>
+    <div class="info">
+      <b>Thana / Upazila:</b>
+      <input type="text" id="thanaSearch" placeholder="Search thana...">
+      <select id="thana"></select>
+    </div>
+
+    <!-- Product Info -->
+    <img id="productImg" class="product-img" src="" alt="Product Image">
+    <div class="info"><b>Product:</b> <span id="product"></span></div>
+    <div class="info"><b>Price:</b> ৳ <span id="price"></span></div>
+    <select id="qty">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+
+    <!-- Delivery & Total -->
+    <div class="info"><b>Delivery Charge:</b> ৳ <span id="delivery"></span></div>
+    <div class="delivery-info">Inside Dhaka: ৳60 | Outside Dhaka: ৳120</div>
+    <div class="info" style="font-weight:bold;"><b>Total:</b> ৳ <span id="total"></span></div>
+
+    <button onclick="placeOrder()">Place Order</button>
   </div>
-  <div class="info">
-    <b>Thana/Upazila:</b>
-    <input type="text" id="thanaSearch" placeholder="Search Thana/Upazila">
-    <select id="thana"></select>
-  </div>
-
-  <img id="productImg" class="product-img" src="" alt="Product">
-  <div class="info"><b>Product:</b> <span id="product"></span></div>
-  <div class="info"><b>Price:</b> ৳ <span id="price"></span></div>
-  <select id="qty">
-    <option value="1">1</option>
-    <option value="2">2</option>
-  </select>
-
-  <div class="info"><b>Delivery Charge:</b> ৳ <span id="delivery"></span></div>
-  <div class="info"><b>Total:</b> ৳ <span id="total"></span></div>
-
-  <button onclick="placeOrder()">Confirm Order</button>
 </div>
 
-<script src="assets/js/script.js"></script>
 <script>
-loadCheckout(); // Load product info, district & thana
-</script>
+// Product details from URL
+const params = new URLSearchParams(window.location.search);
+const productName = params.get("product");
+const price = parseInt(params.get("price"));
+document.getElementById("product").innerText = productName;
+document.getElementById("price").innerText = price;
+document.getElementById("productImg").src = productName==="Arc Lighter"?"arc-lighter.jpg":"nose-hair-trimmer.jpg";
 
+// Unique Order ID
+function orderID(){ return "TM"+Math.floor(100000+Math.random()*900000); }
+
+// Load JSON of districts & upazilas
+let upazilaData = {};
+fetch("bangladesh_upazilas_full.json")
+.then(resp=>resp.json())
+.then(data=>{upazilaData=data; populateDistricts();});
+
+// Populate district dropdown
+function populateDistricts(){
+  const sel=document.getElementById("district");
+  sel.innerHTML="";
+  Object.keys(upazilaData).forEach(d=>{
+    let o=document.createElement("option"); o.value=d; o.text=d; sel.add(o);
+  });
+  populateThana(); calc();
+}
+
+// Populate thana dropdown
+function populateThana(){
+  const sel=document.getElementById("thana"); sel.innerHTML="";
+  const dist=document.getElementById("district").value;
+  (upazilaData[dist]||[]).forEach(t=>{
+    let o=document.createElement("option"); o.value=t; o.text=t; sel.add(o);
+  });
+  calc();
+}
+
+// Calculate total
+function calc(){
+  const qty=parseInt(document.getElementById("qty").value);
+  const dist=document.getElementById("district").value.trim();
+  let delivery=120;
+  if(dist==="Dhaka"){delivery=60;}
+  document.getElementById("delivery").innerText=delivery;
+  document.getElementById("total").innerText=price*qty+delivery;
+}
+
+document.getElementById("qty").onchange=calc;
+document.getElementById("district").onchange=()=>{populateThana(); calc();};
+
+// Search filter
+document.getElementById("districtSearch").oninput=function(){
+  const f=this.value.toLowerCase();
+  const sel=document.getElementById("district"); sel.innerHTML="";
+  Object.keys(upazilaData).filter(d=>d.toLowerCase().includes(f)).forEach(d=>{
+    let o=document.createElement("option"); o.value=d; o.text=d; sel.add(o);
+  });
+  populateThana();
+};
+document.getElementById("thanaSearch").oninput=function(){
+  const f=this.value.toLowerCase();
+  const sel=document.getElementById("thana"); sel.innerHTML="";
+  const dist=document.getElementById("district").value;
+  (upazilaData[dist]||[]).filter(t=>t.toLowerCase().includes(f)).forEach(t=>{
+    let o=document.createElement("option"); o.value=t; o.text=t; sel.add(o);
+  });
+};
+
+// Place order
+function placeOrder(){
+  const name=document.getElementById("name").value.trim();
+  const phone=document.getElementById("phone").value.trim();
+  const address=document.getElementById("address").value.trim();
+  const district=document.getElementById("district").value;
+  const thana=document.getElementById("thana").value;
+  const qty=document.getElementById("qty").value;
+
+  if(!name || !phone || !address){alert("Please fill Name, Phone & Address"); return;}
+
+  let delivery=120;
+  if(district==="Dhaka"){delivery=60;}
+  const total=price*qty+delivery;
+  const id=orderID();
+
+  const now=new Date();
+  const date=now.toLocaleDateString('en-GB');
+  const time=now.toLocaleTimeString('en-GB',{hour12:false});
+
+  const msg=`Order ID: ${id}
+Date: ${date}
+Time: ${time}
+Name: ${name}
+Phone: ${phone}
+Address: ${address}
+District: ${district}
+Thana/Upazila: ${thana}
+Product: ${productName}
+Quantity: ${qty}
+Delivery Charge: ৳${delivery}
+Total: ৳${total}`;
+  // Google Sheet URL
+const sheetURL = "https://script.google.com/macros/s/AKfycbz2eDa6kFa9hCqW6j6J1jLG_C279blAbdVxUhXaubKf/dev";
+fetch(sheetURL, {
+  method: "POST",
+  body: new URLSearchParams({
+    orderID: id,
+    date: date,
+    time: time,
+    name: name,
+    phone: phone,
+    address: address,
+    district: district,
+    thana: thana,
+    product: product,
+    quantity: qty,
+    deliveryCharge: delivery,
+    total: total
+  })
+})
+.then(resp => resp.json())
+.then(res => console.log("Sheet response:", res))
+.catch(err => console.error("Sheet error:", err));
+
+  window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg),"_blank");
+}
+
+// Update total on qty change
+document.getElementById("qty").addEventListener("change",calc);
+</script>
 </body>
 </html>
