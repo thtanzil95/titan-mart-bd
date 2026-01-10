@@ -2,153 +2,72 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<title>Titan Mart BD</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Titan Mart BD - Mini E-commerce</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-body { font-family: Arial; margin:0; padding:0; background:#f0f0f0;}
-header { background:#007bff; color:#fff; padding:15px; text-align:center;}
-#shop { display:flex; flex-wrap:wrap; justify-content:center; margin:20px;}
-.product { border:1px solid #ccc; background:#fff; padding:10px; margin:10px; width:200px; text-align:center; border-radius:5px;}
-.product button { margin-top:5px; padding:5px 10px; background:#28a745; color:#fff; border:none; border-radius:3px; cursor:pointer;}
-#adminBtn { position:fixed; top:15px; right:15px; padding:10px; background:#ffc107; border:none; border-radius:5px; cursor:pointer;}
-/* Admin Panel */
-#overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:500;}
-#adminPanel { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:500px; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 15px #000; z-index:1000; max-height:90%; overflow-y:auto;}
-#adminPanel h2 { text-align:center; color:#007bff;}
-#adminPanel input, #adminPanel button { width:90%; padding:5px; margin:5px 0;}
-#adminPanel .listBox { border:1px solid #ccc; padding:10px; max-height:150px; overflow-y:auto; margin-bottom:10px;}
-#adminPanel .listBox div { display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:3px 0;}
-#closeBtn { background:#dc3545; color:#fff; cursor:pointer; }
+body{margin:0;font-family:Arial,sans-serif;background:#f9f9f9;}
+header{background:#ff4c00;color:#fff;padding:15px;font-size:22px;text-align:center;position:relative;}
+.container{max-width:1200px;margin:auto;padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;}
+.card{background:#fff;border-radius:12px;text-align:center;padding:20px;box-shadow:0 10px 20px rgba(0,0,0,0.08);transition:0.3s;}
+.card:hover{transform:translateY(-5px);box-shadow:0 15px 25px rgba(0,0,0,0.12);}
+.card img{width:100%;height:220px;object-fit:contain;border-radius:10px;}
+.price{color:#ff4c00;font-size:18px;font-weight:bold;margin:10px 0;}
+.btn{display:inline-block;margin-top:10px;padding:10px 18px;background:#ff4c00;color:#fff;border:none;border-radius:6px;cursor:pointer;transition:0.3s;font-weight:bold;}
+.btn:hover{background:#e04300;}
+.top-social{position:fixed;top:15px;left:15px;display:flex;flex-direction:column;gap:10px;z-index:999;}
+.top-social a{width:45px;height:45px;display:flex;align-items:center;justify-content:center;color:#fff;border-radius:50%;font-size:22px;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
+.fb{background:#1877f2;}
+.wa{background:#25D366;}
+footer{margin-top:40px;text-align:center;color:#555;padding:15px;font-size:14px;}
 </style>
 </head>
 <body>
 
+<!-- Floating social buttons -->
+<div class="top-social">
+  <a class="fb" href="https://www.facebook.com/share/14Sd48q5kpU/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+  <a class="wa" href="https://wa.me/8801980236917" target="_blank"><i class="fab fa-whatsapp"></i></a>
+</div>
+
 <header>
-<h1>Titan Mart BD</h1>
+  Titan Mart BD
 </header>
 
-<button id="adminBtn">Admin Panel</button>
-
-<div id="shop">
-<!-- Products will appear here -->
+<div class="container" id="productContainer">
+  <!-- Products will be injected here -->
 </div>
 
-<!-- Admin Panel -->
-<div id="overlay"></div>
-<div id="adminPanel">
-<h2>Admin Panel</h2>
-
-<h3>Products</h3>
-<input type="text" id="productName" placeholder="Product Name">
-<input type="number" id="productPrice" placeholder="Price">
-<button onclick="addProduct()">Add Product</button>
-<div class="listBox" id="productList"></div>
-
-<h3>Orders</h3>
-<div class="listBox" id="orderList"></div>
-
-<h3>Customers</h3>
-<div class="listBox" id="customerList"></div>
-
-<button id="closeBtn">Close Panel</button>
-</div>
+<footer>
+  &copy; 2026 Titan Mart BD. All rights reserved.
+</footer>
 
 <script>
-// LocalStorage arrays
-let products = JSON.parse(localStorage.getItem('products')||'[]');
-let orders = JSON.parse(localStorage.getItem('orders')||'[]');
-let customers = JSON.parse(localStorage.getItem('customers')||'[]');
+// ===== Products Array =====
+const products = [
+  { name:"Arc Lighter", price:850, img:"arc-lighter.jpg" },
+  { name:"Nose Hair Trimmer", price:840, img:"nose-hair-trimmer.jpg" }
+];
 
-const shopDiv = document.getElementById('shop');
-const productList = document.getElementById('productList');
-const orderList = document.getElementById('orderList');
-const customerList = document.getElementById('customerList');
-
-// Render Shop
-function renderShop() {
-    shopDiv.innerHTML = '';
-    products.forEach((p,i)=>{
-        let div = document.createElement('div');
-        div.className='product';
-        div.innerHTML = `<strong>${p.name}</strong><br>Price: ${p.price} BDT<br><button onclick="placeOrder(${i})">Order</button>`;
-        shopDiv.appendChild(div);
-    });
-}
-
-// Admin Panel
-document.getElementById('adminBtn').addEventListener('click',function(){
-    let pass = prompt("Enter admin password:");
-    if(pass==='Titan123'){
-        document.getElementById('adminPanel').style.display='block';
-        document.getElementById('overlay').style.display='block';
-        updateAdminLists();
-    } else alert('Incorrect password!');
+// ===== Render Products =====
+const container = document.getElementById("productContainer");
+products.forEach((p,i)=>{
+  const card = document.createElement("div");
+  card.className="card";
+  card.innerHTML=`
+    <img src="${p.img}" alt="${p.name}">
+    <h3>${p.name}</h3>
+    <div class="price">৳ ${p.price}</div>
+    <button class="btn" onclick="buyNow(${i})">Buy Now</button>
+  `;
+  container.appendChild(card);
 });
 
-document.getElementById('closeBtn').addEventListener('click',function(){
-    document.getElementById('adminPanel').style.display='none';
-    document.getElementById('overlay').style.display='none';
-});
-
-// Add Product
-function addProduct(){
-    let name = document.getElementById('productName').value.trim();
-    let price = document.getElementById('productPrice').value.trim();
-    if(name && price){
-        products.push({name,price});
-        localStorage.setItem('products',JSON.stringify(products));
-        document.getElementById('productName').value='';
-        document.getElementById('productPrice').value='';
-        renderShop();
-        updateAdminLists();
-    }
+// ===== Buy Now -> Checkout =====
+function buyNow(index){
+  const p=products[index];
+  window.location.href=`checkout.html?product=${encodeURIComponent(p.name)}&price=${p.price}&img=${p.img}`;
 }
-
-// Place Order
-function placeOrder(index){
-    let p = products[index];
-    let customerName = prompt("Enter your name for order:");
-    if(customerName){
-        orders.push({product:p.name, price:p.price, customer:customerName});
-        customers.push(customerName);
-        localStorage.setItem('orders',JSON.stringify(orders));
-        localStorage.setItem('customers',JSON.stringify([...new Set(customers)]));
-        alert(`Order placed for ${p.name}`);
-        updateAdminLists();
-    }
-}
-
-// Update Admin Lists
-function updateAdminLists(){
-    // Products
-    productList.innerHTML='';
-    products.forEach((p,i)=>{
-        let div = document.createElement('div');
-        div.innerHTML=`<span>${p.name} - ${p.price} BDT</span><button onclick="deleteProduct(${i})">Delete</button>`;
-        productList.appendChild(div);
-    });
-    // Orders
-    orderList.innerHTML='';
-    orders.forEach((o,i)=>{
-        let div = document.createElement('div');
-        div.innerHTML=`<span>${o.customer} ordered ${o.product} (${o.price} BDT)</span><button onclick="deleteOrder(${i})">Delete</button>`;
-        orderList.appendChild(div);
-    });
-    // Customers
-    customerList.innerHTML='';
-    [...new Set(customers)].forEach(c=>{
-        let div = document.createElement('div');
-        div.textContent=c;
-        customerList.appendChild(div);
-    });
-}
-
-// Delete functions
-function deleteProduct(i){ products.splice(i,1); localStorage.setItem('products',JSON.stringify(products)); renderShop(); updateAdminLists();}
-function deleteOrder(i){ orders.splice(i,1); localStorage.setItem('orders',JSON.stringify(orders)); updateAdminLists();}
-
-// Initial render
-renderShop();
 </script>
 
 </body>
