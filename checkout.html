@@ -2,164 +2,113 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Titan Mart BD Checkout</title>
+<title>Checkout | Titan Mart BD</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
-.container{max-width:720px;margin:40px auto;padding:0;}
-.card{background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.15);padding:25px;}
-h2{text-align:center;color:#ff4c00;margin-bottom:20px;font-weight:600;}
+.container{max-width:720px;margin:40px auto;padding:20px;background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
 input,select{width:100%;padding:12px;margin-top:10px;border:1px solid #ccc;border-radius:8px;}
-input:focus,select:focus{border-color:#ff4c00;outline:none;box-shadow:0 0 6px rgba(255,76,0,0.3);}
 button{width:100%;padding:15px;margin-top:20px;background:#ff4c00;color:#fff;border:none;font-size:16px;border-radius:8px;cursor:pointer;}
-button:hover{background:#e04300;}
-.info{margin-top:12px;}
-.product-img{width:100%;max-height:260px;object-fit:contain;margin-top:15px;border-radius:10px;}
+.product-img{width:100%;max-height:160px;object-fit:contain;margin-top:10px;border-radius:10px;}
+.item{border-bottom:1px solid #ccc;margin-bottom:10px;padding-bottom:10px;}
 </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="card">
-    <h2>Checkout</h2>
+  <h2>Checkout</h2>
+  <input id="name" placeholder="Your Name">
+  <input id="phone" placeholder="Phone Number">
+  <input id="address" placeholder="Full Address">
 
-    <input id="name" placeholder="Your Name" required>
-    <input id="phone" placeholder="Phone Number" required>
-    <input id="address" placeholder="Full Address" required>
-
-    <div class="info">
-      <b>District:</b>
-      <input type="text" id="districtSearch" placeholder="Search district...">
-      <select id="district"></select>
-    </div>
-
-    <div class="info">
-      <b>Thana / Upazila:</b>
-      <input type="text" id="thanaSearch" placeholder="Search Thana / Upazila...">
-      <select id="thana"></select>
-    </div>
-
-    <div class="info">
-      <img id="productImg" class="product-img" src="" alt="Product Image">
-    </div>
-    <div class="info"><b>Product:</b> <span id="product"></span></div>
-    <div class="info"><b>Price:</b> $<span id="price"></span></div>
-    <select id="qty">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-    </select>
-
-    <div class="info"><b>Delivery Charge:</b> $<span id="delivery"></span></div>
-    <div class="info" style="font-weight:bold;"><b>Total:</b> $<span id="total"></span></div>
-
-    <button onclick="placeOrder()">Place Order</button>
+  <div>
+    <b>District:</b>
+    <input type="text" id="districtSearch" placeholder="Search district...">
+    <select id="district"></select>
   </div>
+  <div>
+    <b>Thana/Upazila:</b>
+    <input type="text" id="thanaSearch" placeholder="Search Thana/Upazila...">
+    <select id="thana"></select>
+  </div>
+
+  <div id="cartProducts"></div>
+
+  <div><b>Delivery Charge:</b> ৳ <span id="delivery">0</span></div>
+  <div><b>Total:</b> ৳ <span id="total">0</span></div>
+
+  <button onclick="placeOrder()">Place Order</button>
 </div>
 
 <script>
-// Load product from localStorage (Buy Now or Cart)
-let checkoutCart = JSON.parse(localStorage.getItem("checkoutCart") || "[]");
-if(checkoutCart.length>0){
-  const p = checkoutCart[0];
-  document.getElementById("product").innerText=p.name;
-  document.getElementById("price").innerText=p.price;
-  document.getElementById("productImg").src=p.image;
-}
-
-function orderID(){ return "TM"+Math.floor(100000+Math.random()*900000); }
-
-// Place order
-function placeOrder(){
-  const name = document.getElementById("name").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const address = document.getElementById("address").value.trim();
-  const district = document.getElementById("district").value;
-  const thana = document.getElementById("thana").value;
-  const qty = parseInt(document.getElementById("qty").value);
-  const price = parseInt(document.getElementById("price").innerText);
-
-  if(!name || !phone || !address){ alert("Please fill all required fields"); return; }
-
-  let delivery = 120; // default outside Dhaka
-  if(district.trim().toLowerCase()==="dhaka"){ delivery=60; }
-
-  const total = price*qty + delivery;
-  const id = orderID();
-
-  const now = new Date();
-  const date = now.toLocaleDateString('en-US');
-  const time = now.toLocaleTimeString('en-US');
-
-  const msg = `Order ID: ${id}
-Date: ${date}
-Time: ${time}
-Name: ${name}
-Phone: ${phone}
-Address: ${address}
-District: ${district}
-Thana: ${thana}
-Product: ${checkoutCart[0].name}
-Quantity: ${qty}
-Delivery Charge: $${delivery}
-Total: $${total}`;
-
-  // Open WhatsApp
-  window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg), "_blank");
-  alert("Order placed! Delivery inside Dhaka $60, outside Dhaka $120. Thank you for shopping at Titan Mart BD!");
-}
-
-// Load Bangladesh districts + upazilas
 let upazilaData = {};
-fetch("bangladesh_upazilas.json").then(r=>r.json()).then(d=>{
-  upazilaData=d;
-  populateDistricts();
-});
+fetch("bangladesh_upazilas.json").then(r=>r.json()).then(d=>{upazilaData=d;populateDistricts();});
 
 function populateDistricts(){
-  const sel = document.getElementById("district");
+  const sel=document.getElementById("district");
   Object.keys(upazilaData).forEach(d=>{
     let o=document.createElement("option"); o.value=d; o.text=d; sel.add(o);
   });
-  populateThana();
+  populateThana(); calc();
 }
 
 function populateThana(){
   const sel=document.getElementById("thana"); sel.innerHTML="";
-  const dist = document.getElementById("district").value;
+  const dist=document.getElementById("district").value;
   (upazilaData[dist]||[]).forEach(t=>{
     let o=document.createElement("option"); o.value=t; o.text=t; sel.add(o);
   });
+  calc();
 }
 
-document.getElementById("district").onchange=populateThana;
-document.getElementById("districtSearch").oninput=function(){
-  const f=this.value.toLowerCase();
-  const sel=document.getElementById("district"); sel.innerHTML="";
-  Object.keys(upazilaData).filter(d=>d.toLowerCase().includes(f)).forEach(d=>{
-    let o=document.createElement("option"); o.value=d; o.text=d; sel.add(o);
+// Load products from cart
+let cart = JSON.parse(localStorage.getItem("checkoutCart")||"[]");
+const container = document.getElementById("cartProducts");
+function renderCart(){
+  container.innerHTML="";
+  cart.forEach(p=>{
+    const div = document.createElement("div"); div.className="item";
+    div.innerHTML=`<b>${p.name}</b><br>
+      <img class="product-img" src="${p.image}"><br>
+      Price: ৳ ${p.price} | Quantity: ${p.qty} | Subtotal: ৳ ${p.price*p.qty}`;
+    container.appendChild(div);
   });
-  populateThana();
-};
-document.getElementById("thanaSearch").oninput=function(){
-  const f=this.value.toLowerCase();
-  const sel=document.getElementById("thana"); sel.innerHTML="";
-  const dist=document.getElementById("district").value;
-  (upazilaData[dist]||[]).filter(t=>t.toLowerCase().includes(f)).forEach(t=>{
-    let o=document.createElement("option"); o.value=t; o.text=t; sel.add(o);
-  });
-};
+}
+renderCart();
 
-// Qty change
-document.getElementById("qty").onchange=function(){
-  const price = parseInt(document.getElementById("price").innerText);
-  const dist = document.getElementById("district").value.trim();
-  let delivery = 120; if(dist.toLowerCase()==="dhaka"){delivery=60;}
+// Calculate total
+function calc(){
+  const dist=document.getElementById("district").value;
+  let delivery = dist==="Dhaka"?60:120;
   document.getElementById("delivery").innerText=delivery;
-  document.getElementById("total").innerText=price*parseInt(this.value)+delivery;
-};
-document.getElementById("district").onchange=document.getElementById("qty").onchange;
+  let total=cart.reduce((acc,p)=>acc+p.price*p.qty,0)+delivery;
+  document.getElementById("total").innerText=total;
+}
+
+document.getElementById("district").onchange=()=>{populateThana();calc();};
+
+// Place order
+function orderID(){return "TM"+Math.floor(100000+Math.random()*900000);}
+function placeOrder(){
+  const name=document.getElementById("name").value.trim();
+  const phone=document.getElementById("phone").value.trim();
+  const address=document.getElementById("address").value.trim();
+  const district=document.getElementById("district").value;
+  const thana=document.getElementById("thana").value;
+  if(!name||!phone||!address){alert("Please fill name, phone and address!");return;}
+  const delivery=district==="Dhaka"?60:120;
+  const total=cart.reduce((acc,p)=>acc+p.price*p.qty,0)+delivery;
+  const id=orderID();
+  const now=new Date();
+  const date=now.toLocaleDateString('en-US');
+  const time=now.toLocaleTimeString('en-US',{hour12:false});
+
+  let msg=`Order ID: ${id}\nDate: ${date}\nTime: ${time}\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nDistrict: ${district}\nThana: ${thana}\n`;
+  cart.forEach(p=>{msg+=`Product: ${p.name} | Qty: ${p.qty} | Price: ৳${p.price}\n`;});
+  msg+=`Delivery Charge: ৳${delivery}\nTotal: ৳${total}`;
+
+  window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg),"_blank");
+}
 </script>
 </body>
 </html>
