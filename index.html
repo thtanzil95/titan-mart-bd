@@ -8,20 +8,18 @@
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f9f9f9;}
 header{background:#ff4c00;color:#fff;padding:15px;font-size:22px;text-align:center;position:relative;}
-.header-right{position:absolute;right:15px;top:15px;display:flex;align-items:center;gap:15px;}
-.header-right a{color:#fff;text-decoration:none;font-weight:bold;position:relative;}
 .container{max-width:1200px;margin:auto;padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;}
 .card{background:#fff;border-radius:12px;text-align:center;padding:20px;box-shadow:0 10px 20px rgba(0,0,0,0.08);transition:0.3s;}
 .card:hover{transform:translateY(-5px);box-shadow:0 15px 25px rgba(0,0,0,0.12);}
 .card img{width:100%;height:220px;object-fit:contain;border-radius:10px;}
 .price{color:#ff4c00;font-size:18px;font-weight:bold;margin:10px 0;}
-.btn{display:inline-block;margin:5px 5px 0 0;padding:10px 18px;background:#ff4c00;color:#fff;border:none;border-radius:6px;cursor:pointer;transition:0.3s;font-weight:bold;}
+.btn{display:inline-block;margin-top:10px;padding:10px 18px;background:#ff4c00;color:#fff;border:none;border-radius:6px;cursor:pointer;transition:0.3s;font-weight:bold;}
 .btn:hover{background:#e04300;}
 .top-social{position:fixed;top:15px;left:15px;display:flex;flex-direction:column;gap:10px;z-index:999;}
 .top-social a{width:45px;height:45px;display:flex;align-items:center;justify-content:center;color:#fff;border-radius:50%;font-size:22px;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
 .fb{background:#1877f2;}
 .wa{background:#25D366;}
-.cart-count{background:#fff;color:#ff4c00;font-size:12px;font-weight:bold;padding:2px 6px;border-radius:50%;position:absolute;top:-5px;right:-5px;}
+footer{margin-top:40px;text-align:center;color:#555;padding:15px;font-size:14px;}
 </style>
 </head>
 <body>
@@ -34,14 +32,15 @@ header{background:#ff4c00;color:#fff;padding:15px;font-size:22px;text-align:cent
 
 <header>
   Titan Mart BD
-  <div class="header-right">
-    <a href="cart.html">🛒 Cart <span id="cartCount" class="cart-count">0</span></a>
-  </div>
 </header>
 
 <div class="container" id="productContainer">
   <!-- Products will be injected here -->
 </div>
+
+<footer>
+  &copy; 2026 Titan Mart BD. All rights reserved.
+</footer>
 
 <script>
 // ===== Products Array =====
@@ -60,32 +59,15 @@ products.forEach((p,i)=>{
     <h3>${p.name}</h3>
     <div class="price">৳ ${p.price}</div>
     <button class="btn" onclick="buyNow(${i})">Buy Now</button>
-    <button class="btn" onclick="addToCart(${i})">Add to Cart</button>
   `;
   container.appendChild(card);
 });
 
-// ===== Cart Functions =====
-function getCart(){return JSON.parse(localStorage.getItem("cart")||"[]");}
-function setCart(c){localStorage.setItem("cart",JSON.stringify(c));updateCartCount();}
-function updateCartCount(){document.getElementById("cartCount").innerText=getCart().length;}
-
-// Add to Cart
-function addToCart(index){
-  const cart=getCart(); const prod=products[index];
-  const exist=cart.find(p=>p.name===prod.name);
-  if(exist){exist.qty+=1;} else {cart.push({...prod,qty:1});}
-  setCart(cart);
-  alert(prod.name+" added to cart");
-}
-
-// Buy Now -> Checkout
+// ===== Buy Now -> Checkout =====
 function buyNow(index){
   const p=products[index];
   window.location.href=`checkout.html?product=${encodeURIComponent(p.name)}&price=${p.price}&img=${p.img}`;
 }
-
-updateCartCount();
 </script>
 
 </body>
