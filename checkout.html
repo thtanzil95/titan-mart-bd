@@ -6,109 +6,130 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
-.container{max-width:720px;margin:40px auto;padding:20px;}
+.container{max-width:720px;margin:40px auto;padding:20px;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.1);}
 h2{text-align:center;color:#ff4c00;margin-bottom:20px;}
 input,select{width:100%;padding:12px;margin-top:10px;border:1px solid #ccc;border-radius:8px;}
-input:focus,select:focus{border-color:#ff4c00;outline:none;}
+input:focus,select:focus{border-color:#ff4c00;outline:none;box-shadow:0 0 6px rgba(255,76,0,0.3);}
 button{width:100%;padding:15px;margin-top:20px;background:#ff4c00;color:#fff;border:none;font-size:16px;border-radius:8px;cursor:pointer;}
-.product-img{width:100%;max-height:260px;object-fit:contain;margin-top:15px;border-radius:10px;}
-.info{margin-top:12px;font-weight:bold;}
+table{width:100%;border-collapse:collapse;margin-top:15px;}
+th,td{padding:10px;text-align:center;border-bottom:1px solid #ddd;}
+img{width:80px;height:80px;object-fit:contain;}
+.total{font-weight:bold;text-align:right;margin-top:10px;font-size:18px;}
+.info{margin-top:12px;}
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>Checkout</h2>
+<h2>Checkout</h2>
 
-  <!-- Customer Info -->
-  <input id="name" placeholder="Your Name" required>
-  <input id="phone" placeholder="Phone Number" required>
-  <input id="address" placeholder="Full Address" required>
+<!-- Customer Info -->
+<input id="name" placeholder="Your Name" required>
+<input id="phone" placeholder="Phone Number" required>
+<input id="address" placeholder="Full Address" required>
 
-  <!-- District & Thana -->
-  <div class="info">District:
-    <input type="text" id="districtSearch" placeholder="Search District...">
-    <select id="district"></select>
-  </div>
-  <div class="info">Thana/Upazila:
-    <input type="text" id="thanaSearch" placeholder="Search Thana/Upazila...">
-    <select id="thana"></select>
-  </div>
+<!-- District & Upazila -->
+<div class="info">
+  <b>District:</b>
+  <input type="text" id="districtSearch" placeholder="Search District">
+  <select id="district"></select>
+</div>
+<div class="info">
+  <b>Upazila/Thana:</b>
+  <input type="text" id="thanaSearch" placeholder="Search Upazila/Thana">
+  <select id="thana"></select>
+</div>
 
-  <!-- Product Info -->
-  <img id="productImg" class="product-img" src="" alt="Product Image">
-  <div class="info">Product: <span id="product"></span></div>
-  <div class="info">Price: ৳ <span id="price"></span></div>
+<!-- Cart / Products -->
+<table id="productTable">
+  <thead>
+    <tr><th>Image</th><th>Product</th><th>Price</th><th>Qty</th><th>Total</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-  <select id="qty">
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-  </select>
+<div class="total">Delivery Info: Inside Dhaka: 60৳, Outside Dhaka: 120৳</div>
+<div class="total">Grand Total: ৳ <span id="grandTotal">0</span></div>
 
-  <div class="info">Delivery Charge: ৳ <span id="delivery"></span></div>
-  <div class="info">Total: ৳ <span id="total"></span></div>
-
-  <button onclick="placeOrder()">Place Order</button>
+<button onclick="placeOrder()">Place Order</button>
 </div>
 
 <script>
-// Products from URL
+// Get products from Buy Now or Cart
+let products=[];
 const params = new URLSearchParams(window.location.search);
-const productName = params.get("product");
-const productPrice = parseInt(params.get("price"));
-document.getElementById("product").innerText = productName;
-document.getElementById("price").innerText = productPrice;
+if(params.get("from")==="cart"){
+  products = JSON.parse(localStorage.getItem("checkoutCart")||"[]");
+}else{
+  const name = params.get("product");
+  const price = parseInt(params.get("price"));
+  const img = name==="Arc Lighter"?"arc-lighter.jpg":"nose-hair-trimmer.jpg";
+  products.push({name:name,price:price,image:img,qty:1});
+}
 
-// Set product image
-document.getElementById("productImg").src = productName==="Arc Lighter" ? "arc-lighter.jpg" : "nose-hair-trimmer.jpg";
+// Render products
+function renderProducts(){
+  const tbody=document.querySelector("#productTable tbody");
+  tbody.innerHTML="";
+  let grand=0;
+  products.forEach((p,i)=>{
+    const total=p.price*p.qty;
+    grand+=total;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td><img src="${p.image}" alt="${p.name}"></td>
+      <td>${p.name}</td>
+      <td>${p.price}</td>
+      <td><input type="number" min="1" value="${p.qty}" onchange="updateQty(${i},this.value)"></td>
+      <td>${total}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  calcTotal();
+}
 
-// District & Thana JSON
-let upazilaData = {}; // bangladesh_upazilas.json content
+function updateQty(index,val){
+  products[index].qty=parseInt(val);
+  renderProducts();
+}
+
+// Delivery charge
+function calcTotal(){
+  const qtyTotal=products.reduce((a,p)=>a+p.price*p.qty,0);
+  const dist=document.getElementById("district").value.trim().toLowerCase();
+  const delivery = dist==="dhaka"?60:120;
+  document.getElementById("grandTotal").innerText=qtyTotal+delivery;
+}
+
+renderProducts();
+
+// Load Bangladesh districts/upazila JSON
+let upazilaData={};
 fetch("bangladesh_upazilas.json")
-.then(res=>res.json())
-.then(data=>{
-  upazilaData = data;
-  populateDistricts();
-});
+.then(r=>r.json())
+.then(d=>{upazilaData=d; populateDistricts();});
 
 function populateDistricts(){
-  const sel = document.getElementById("district");
+  const sel=document.getElementById("district");
   sel.innerHTML="";
   Object.keys(upazilaData).forEach(d=>{
-    let o=document.createElement("option");
-    o.value=d; o.text=d; sel.add(o);
+    const o=document.createElement("option"); o.value=d; o.text=d; sel.add(o);
   });
   populateThana();
-  calc();
+  calcTotal();
 }
 
 function populateThana(){
-  const sel = document.getElementById("thana");
+  const sel=document.getElementById("thana");
   sel.innerHTML="";
-  const dist = document.getElementById("district").value;
+  const dist=document.getElementById("district").value;
   (upazilaData[dist]||[]).forEach(t=>{
-    let o=document.createElement("option");
-    o.value=t; o.text=t; sel.add(o);
+    const o=document.createElement("option"); o.value=t; o.text=t; sel.add(o);
   });
-  calc();
+  calcTotal();
 }
 
-// Calculate total with delivery
-function calc(){
-  const qty = parseInt(document.getElementById("qty").value);
-  const dist = document.getElementById("district").value.trim();
-  let delivery = 120; // default outside Dhaka
-  if(dist.toLowerCase()==="dhaka"){delivery=60;}
-  document.getElementById("delivery").innerText=delivery;
-  document.getElementById("total").innerText=productPrice*qty + delivery;
-}
-
-document.getElementById("qty").onchange=calc;
-document.getElementById("district").onchange=()=>{populateThana(); calc();};
-
-// Search filters
+document.getElementById("district").onchange=()=>{populateThana(); calcTotal();};
 document.getElementById("districtSearch").oninput=function(){
   const f=this.value.toLowerCase();
   const sel=document.getElementById("district"); sel.innerHTML="";
@@ -127,36 +148,33 @@ document.getElementById("thanaSearch").oninput=function(){
 };
 
 // Place order
-function orderID(){return "TM"+Math.floor(100000+Math.random()*900000);}
+function orderID(){ return "TM"+Math.floor(100000+Math.random()*900000); }
+
 function placeOrder(){
-  const name = document.getElementById("name").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const address = document.getElementById("address").value.trim();
-  const district = document.getElementById("district").value;
-  const thana = document.getElementById("thana").value;
-  const qty = document.getElementById("qty").value;
-  if(!name||!phone||!address){alert("Please fill Name, Phone, Address"); return;}
-  const delivery = (district.toLowerCase()==="dhaka") ? 60 : 120;
-  const total = productPrice*qty + delivery;
+  const name=document.getElementById("name").value.trim();
+  const phone=document.getElementById("phone").value.trim();
+  const address=document.getElementById("address").value.trim();
+  const district=document.getElementById("district").value;
+  const thana=document.getElementById("thana").value;
+
+  if(!name||!phone||!address){ alert("Please fill Name, Phone and Address"); return; }
+
+  let delivery = district.toLowerCase()==="dhaka"?60:120;
+  let total = products.reduce((a,p)=>a+p.price*p.qty,0)+delivery;
+
   const now = new Date();
   const date = now.toLocaleDateString();
   const time = now.toLocaleTimeString();
   const id = orderID();
-  const msg=`Order ID: ${id}
-Date: ${date}
-Time: ${time}
-Name: ${name}
-Phone: ${phone}
-Address: ${address}
-District: ${district}
-Thana/Upazila: ${thana}
-Product: ${productName}
-Quantity: ${qty}
-Delivery Charge: ৳${delivery}
-Total: ৳${total}`;
-  // WhatsApp direct
+
+  let msg=`Order ID: ${id}\nDate: ${date}\nTime: ${time}\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nDistrict: ${district}\nThana: ${thana}\n`;
+  products.forEach(p=>{ msg+=`${p.name} x ${p.qty} = ৳${p.price*p.qty}\n`; });
+  msg+=`Delivery Charge: ৳${delivery}\nTotal: ৳${total}`;
+
+  // Send to WhatsApp
   window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg),"_blank");
 }
+
 </script>
 </body>
 </html>
