@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Checkout | Titan Mart BD</title>
+<title>Titan Mart BD Checkout</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
-.container{max-width:720px;margin:30px auto;padding:15px;}
-.card{background:#fff;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.1);padding:25px;}
-h2{text-align:center;color:#ff4c00;margin-bottom:20px;}
+.container{max-width:720px;margin:40px auto;padding:0;}
+.card{background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.15);padding:25px;}
+h2{text-align:center;color:#ff4c00;margin-bottom:20px;font-weight:600;}
 input,select{width:100%;padding:12px;margin-top:10px;border:1px solid #ccc;border-radius:8px;transition:0.3s;}
 input:focus,select:focus{border-color:#ff4c00;outline:none;box-shadow:0 0 6px rgba(255,76,0,0.3);}
-button{width:100%;padding:15px;margin-top:20px;background:#ff4c00;color:#fff;border:none;font-size:16px;border-radius:8px;cursor:pointer;}
+button{width:100%;padding:15px;margin-top:20px;background:#ff4c00;color:#fff;border:none;font-size:16px;border-radius:8px;cursor:pointer;transition:0.3s;}
 button:hover{background:#e04300;}
-.product-img{width:100%;max-height:250px;object-fit:contain;margin-top:15px;border-radius:10px;}
-.info{margin-top:12px;font-size:15px;}
+.product-img{width:100%;max-height:260px;object-fit:contain;margin-top:15px;border-radius:10px;}
+.info{margin-top:12px;}
 </style>
 </head>
 <body>
@@ -24,16 +24,18 @@ button:hover{background:#e04300;}
     <h2>Checkout</h2>
 
     <!-- Customer Info -->
-    <input id="name" placeholder="Full Name">
-    <input id="phone" placeholder="Mobile Number">
+    <input id="name" placeholder="Your Name">
+    <input id="phone" placeholder="Phone Number">
     <input id="address" placeholder="Full Address">
 
     <!-- District & Upazila -->
-    <div class="info"><b>District:</b>
+    <div class="info">
+      <b>District:</b>
       <input type="text" id="districtSearch" placeholder="Search District...">
       <select id="district"></select>
     </div>
-    <div class="info"><b>Upazila/Thana:</b>
+    <div class="info">
+      <b>Upazila/Thana:</b>
       <input type="text" id="thanaSearch" placeholder="Search Upazila/Thana...">
       <select id="thana"></select>
     </div>
@@ -43,154 +45,120 @@ button:hover{background:#e04300;}
     <div class="info"><b>Product:</b> <span id="product"></span></div>
     <div class="info"><b>Price:</b> ৳ <span id="price"></span></div>
     <select id="qty">
-      <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
     </select>
 
     <!-- Delivery & Total -->
-    <div class="info"><b>Delivery Charge:</b> ৳ <span id="delivery">0</span></div>
-    <div class="info" style="font-weight:bold;"><b>Total:</b> ৳ <span id="total">0</span></div>
+    <div class="info"><b>Delivery Charge:</b> ৳ <span id="delivery"></span></div>
+    <div class="info" style="font-weight:bold;"><b>Total:</b> ৳ <span id="total"></span></div>
 
     <button onclick="placeOrder()">Place Order</button>
   </div>
 </div>
 
 <script>
-// Products from Buy Now URL
+// Products from URL
 const params = new URLSearchParams(window.location.search);
-const productName = params.get("product");
-const productPrice = parseInt(params.get("price"));
-document.getElementById("product").innerText = productName;
-document.getElementById("price").innerText = productPrice;
-document.getElementById("productImg").src = productName==="Arc Lighter"?"arc-lighter.jpg":"nose-hair-trimmer.jpg";
+const product = params.get("product");
+const price = parseInt(params.get("price"));
+document.getElementById("product").innerText = product;
+document.getElementById("price").innerText = price;
+document.getElementById("productImg").src = product==="Arc Lighter"?"arc-lighter.jpg":"nose-hair-trimmer.jpg";
 
-// 64 districts + upazila example
-let upazilaData = {
-  "Dhaka":["Savar","Dhamrai","Keraniganj","Nawabganj","Dohar","Kafrul","Mirpur","Uttara","Mohammadpur"],
-  "Chattogram":["Patiya","Sitakunda","Mirsharai","Fatikchhari","Hathazari","Anwara"],
-  "Khulna":["Khalishpur","Daulatpur","Sonadanga"],
-  "Rajshahi":["Paba","Godagari","Bagha"],
-  "Sylhet":["Beanibazar","Golapganj","Fenchuganj"],
-  "Barishal":["Agailjhara","Babuganj","Bakerganj"],
-  "Rangpur":["Gangachhara","Kaunia","Pirgachha"],
-  "Mymensingh":["Muktagachha","Gaffargaon","Ishwarganj"],
-  "Comilla":["Barura","Brahmanpara","Chandina"],
-  "Jessore":["Abhaynagar","Bagherpara","Keshabpur"],
-  "Tangail":["Basail","Delduar","Ghatail"],
-  "Noakhali":["Begumganj","Chatkhil","Sonaimuri"],
-  "Pabna":["Atghoria","Bera","Bhangura"],
-  "Bogra":["Adamdighi","Dhunat","Sariakandi"],
-  "Narsingdi":["Belabo","Monohardi","Palash"],
-  "Natore":["Bagatipara","Baraigram","Bharatpur"],
-  "Barguna":["Amtali","Bamna","Betagi"],
-  "Bhola":["Bhola Sadar","Char Fasson","Lalmohan"],
-  "Jhalokathi":["Kathalia","Nalchity","Rajapur"],
-  "Pirojpur":["Bhandaria","Kawkhali","Mathbaria"],
-  "Magura":["Magura Sadar","Mohammadpur"],
-  "Narail":["Narail Sadar","Lohagara"],
-  "Kushtia":["Kumarkhali","Mirpur","Bheramara"],
-  "Feni":["Feni Sadar","Chhagalnaiya"],
-  "Lakshmipur":["Lakshmipur Sadar","Raipur"],
-  "Cox's Bazar":["Chakaria","Maheshkhali","Ramu"],
-  "Gazipur":["Gazipur Sadar","Kaliakoir"],
-  "Gopalganj":["Gopalganj Sadar","Kashiani"],
-  "Habiganj":["Baniachang","Bahubal"],
-  "Jamalpur":["Jamalpur Sadar","Madarganj"],
-  "Joypurhat":["Joypurhat Sadar","Panchbibi"],
-  "Meherpur":["Meherpur Sadar","Gangni"],
-  "Nilphamari":["Nilphamari Sadar","Kishoreganj"],
-  "Panchagarh":["Panchagarh Sadar","Debiganj"],
-  "Rajbari":["Rajbari Sadar","Pangsha"],
-  "Sherpur":["Sherpur Sadar","Sreebardi"],
-  "Sirajganj":["Sirajganj Sadar","Chauhali"],
-  "Sunamganj":["Sunamganj Sadar","Jagannathpur"],
-  "Thakurgaon":["Thakurgaon Sadar","Pirganj"],
-  "Bagerhat":["Bagerhat Sadar","Mollahat"],
-  "Chandpur":["Chandpur Sadar","Faridganj"],
-  "Chuadanga":["Chuadanga Sadar","Alamdanga"],
-  "Madaripur":["Madaripur Sadar","Kalkini"],
-  "Munshiganj":["Munshiganj Sadar","Sreenagar"],
-  "Patuakhali":["Patuakhali Sadar","Bauphal"],
-  "Satkhira":["Satkhira Sadar","Debhata"]
-  // সব 64 জেলা + উপজেলা JSON এ add করতে পারবে
-};
-
-// Populate District & Thana
-const districtSelect=document.getElementById("district");
-function populateDistricts(){
-  districtSelect.innerHTML="";
-  Object.keys(upazilaData).forEach(d=>{
-    const o=document.createElement("option"); o.value=d; o.text=d; districtSelect.add(o);
-  });
-  populateThana();
-}
-function populateThana(){
-  const sel=document.getElementById("thana"); sel.innerHTML="";
-  const dist=districtSelect.value;
-  (upazilaData[dist]||[]).forEach(t=>{
-    const o=document.createElement("option"); o.value=t; o.text=t; sel.add(o);
-  });
-  calculate();
-}
-districtSelect.onchange=()=>{populateThana(); calculate();};
-
-// Search filters
-document.getElementById("districtSearch").oninput=function(){
-  const f=this.value.toLowerCase(); districtSelect.innerHTML="";
-  Object.keys(upazilaData).filter(d=>d.toLowerCase().includes(f)).forEach(d=>{
-    const o=document.createElement("option"); o.value=d; o.text=d; districtSelect.add(o);
-  }); populateThana();
-};
-document.getElementById("thanaSearch").oninput=function(){
-  const f=this.value.toLowerCase(); const sel=document.getElementById("thana"); sel.innerHTML="";
-  const dist=districtSelect.value;
-  (upazilaData[dist]||[]).filter(t=>t.toLowerCase().includes(f)).forEach(t=>{
-    const o=document.createElement("option"); o.value=t; o.text=t; sel.add(o);
-  });
-};
-
-// Quantity change
-document.getElementById("qty").onchange=calculate;
-function calculate(){
-  const qty=parseInt(document.getElementById("qty").value);
-  const dist=districtSelect.value;
-  let delivery = (dist==="Dhaka")?60:120;
-  document.getElementById("delivery").innerText=delivery;
-  document.getElementById("total").innerText=productPrice*qty+delivery;
-}
-
-// Place Order
+// Order ID generator
 function orderID(){return "TM"+Math.floor(100000+Math.random()*900000);}
+
+// Place order
 function placeOrder(){
   const name=document.getElementById("name").value.trim();
   const phone=document.getElementById("phone").value.trim();
   const address=document.getElementById("address").value.trim();
-  const district=districtSelect.value;
+  const district=document.getElementById("district").value;
   const thana=document.getElementById("thana").value;
-  const qty=document.getElementById("qty").value;
-  if(!name||!phone||!address){alert("Please fill all required fields!"); return;}
-  const delivery=(district==="Dhaka")?60:120;
-  const total=productPrice*qty+delivery;
-  const id=orderID();
-  const now=new Date();
-  const date=now.toLocaleDateString();
-  const time=now.toLocaleTimeString();
-  const msg=`Order ID: ${id}
-Date: ${date}
-Time: ${time}
-Name: ${name}
-Phone: ${phone}
-Address: ${address}
-District: ${district}
-Upazila/Thana: ${thana}
-Product: ${productName}
-Quantity: ${qty}
-Delivery Charge: ৳${delivery}
-Total: ৳${total}`;
+  const qty=parseInt(document.getElementById("qty").value);
+
+  if(!name || !phone || !address){
+    alert("Please fill Name, Phone & Address");
+    return;
+  }
+
+  let delivery = 120;
+  if(district.trim().toLowerCase()==="dhaka") delivery=60;
+  const total = price*qty + delivery;
+  const id = orderID();
+
+  const now = new Date();
+  const date = now.toLocaleDateString('en-GB');
+  const time = now.toLocaleTimeString('en-US',{hour12:false});
+
+  const msg = `Order ID: ${id}\nDate: ${date}\nTime: ${time}\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nDistrict: ${district}\nUpazila: ${thana}\nProduct: ${product}\nQty: ${qty}\nDelivery: ৳${delivery}\nTotal: ৳${total}`;
+
+  // WhatsApp auto-send
   window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg),"_blank");
 }
 
-// Init
-populateDistricts();
+// Load JSON
+let upazilaData={};
+fetch("bangladesh_upazilas_full.json")
+.then(resp=>resp.json())
+.then(data=>{upazilaData=data; populateDistricts();});
+
+// Populate District
+function populateDistricts(){
+  const sel=document.getElementById("district");
+  sel.innerHTML="";
+  Object.keys(upazilaData).forEach(d=>{
+    let o=document.createElement("option");o.value=d;o.text=d;sel.add(o);
+  });
+  populateThana();calc();
+}
+
+// Populate Thana
+function populateThana(){
+  const sel=document.getElementById("thana");
+  sel.innerHTML="";
+  const dist=document.getElementById("district").value;
+  (upazilaData[dist]||[]).forEach(t=>{
+    let o=document.createElement("option");o.value=t;o.text=t;sel.add(o);
+  });
+  calc();
+}
+
+// Calculate total
+function calc(){
+  const qty=parseInt(document.getElementById("qty").value);
+  const dist=document.getElementById("district").value.trim();
+  let delivery=120;
+  if(dist.toLowerCase()==="ঢাকা"||dist.toLowerCase()==="dhaka") delivery=60;
+  document.getElementById("delivery").innerText=delivery;
+  document.getElementById("total").innerText=price*qty + delivery;
+}
+
+// Events
+document.getElementById("qty").onchange=calc;
+document.getElementById("district").onchange=()=>{populateThana();calc();};
+
+// Search
+document.getElementById("districtSearch").oninput=function(){
+  const f=this.value.toLowerCase();
+  const sel=document.getElementById("district");
+  sel.innerHTML="";
+  Object.keys(upazilaData).filter(d=>d.toLowerCase().includes(f)).forEach(d=>{
+    let o=document.createElement("option"); o.value=d; o.text=d; sel.add(o);
+  });
+  populateThana();
+};
+document.getElementById("thanaSearch").oninput=function(){
+  const f=this.value.toLowerCase();
+  const sel=document.getElementById("thana"); sel.innerHTML="";
+  const dist=document.getElementById("district").value;
+  (upazilaData[dist]||[]).filter(t=>t.toLowerCase().includes(f)).forEach(t=>{
+    let o=document.createElement("option"); o.value=t;o.text=t;sel.add(o);
+  });
+};
 </script>
 </body>
 </html>
