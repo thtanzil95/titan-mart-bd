@@ -1,105 +1,108 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Titan Mart BD | টাইটান মার্ট বিডি</title>
+<title>Titan Mart BD</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- REAL Facebook & WhatsApp icons -->
+<!-- Font Awesome for social icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-body{margin:0;font-family:Arial;background:#f5f5f5}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
 header{
-  background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:22px;position:relative
+  background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:22px;position:relative;
 }
-.lang-btn{
-  position:absolute;right:15px;top:15px;
-  background:#fff;color:#ff4c00;padding:6px 10px;border-radius:5px;
-  cursor:pointer;font-weight:bold
+.header-right{
+  position:absolute;right:15px;top:15px;display:flex;align-items:center;gap:15px;
 }
-.container{
-  max-width:1100px;margin:auto;padding:20px;
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px
-}
-.card{
-  background:#fff;padding:15px;border-radius:8px;text-align:center;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1)
-}
-.card img{width:100%;max-height:220px;object-fit:contain}
-.price{color:#ff4c00;font-size:18px;font-weight:bold}
-.btn{
-  display:inline-block;margin-top:10px;padding:10px 15px;
-  background:#ff4c00;color:#fff;text-decoration:none;border-radius:5px
-}
-
-/* Social buttons */
-.top-social{
-  position:fixed;top:15px;left:15px;
-  display:flex;gap:10px;z-index:9999
-}
-.top-social a{
-  width:45px;height:45px;
-  display:flex;align-items:center;justify-content:center;
-  color:#fff;border-radius:50%;
-  font-size:22px;text-decoration:none;
-  box-shadow:0 4px 10px rgba(0,0,0,0.3)
-}
-.fb{background:#1877f2}
-.wa{background:#25D366}
+.header-right span, .header-right a{color:#fff;text-decoration:none;font-weight:bold;cursor:pointer;}
+.container{max-width:1100px;margin:auto;padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;}
+.card{background:#fff;padding:15px;border-radius:8px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.card img{width:100%;max-height:220px;object-fit:contain;}
+.price{color:#ff4c00;font-size:18px;font-weight:bold;margin-top:5px;}
+.btn{display:inline-block;margin-top:10px;padding:10px 15px;background:#ff4c00;color:#fff;text-decoration:none;border-radius:5px;cursor:pointer;}
+.top-social{position:fixed;top:15px;left:15px;display:flex;gap:10px;z-index:9999;}
+.top-social a{width:45px;height:45px;display:flex;align-items:center;justify-content:center;color:#fff;border-radius:50%;font-size:22px;text-decoration:none;box-shadow:0 4px 10px rgba(0,0,0,0.3);}
+.fb{background:#1877f2;}
+.wa{background:#25D366;}
+.cart-count{background:#fff;color:#ff4c00;font-size:12px;font-weight:bold;padding:2px 6px;border-radius:50%;position:absolute;top:-5px;right:-5px;}
 </style>
 </head>
-
 <body>
 
-<!-- Facebook + WhatsApp -->
+<!-- Social buttons -->
 <div class="top-social">
-  <a class="fb" href="https://www.facebook.com/share/14Sd48q5kpU/" target="_blank">
-    <i class="fab fa-facebook-f"></i>
-  </a>
-  <a class="wa" href="https://wa.me/8801980236917" target="_blank">
-    <i class="fab fa-whatsapp"></i>
-  </a>
+  <a class="fb" href="https://www.facebook.com/share/14Sd48q5kpU/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+  <a class="wa" href="https://wa.me/8801980236917" target="_blank"><i class="fab fa-whatsapp"></i></a>
 </div>
 
 <header>
-  <span id="title">টাইটান মার্ট বিডি</span>
-  <span class="lang-btn" onclick="toggleLang()">EN</span>
+  Titan Mart BD
+  <div class="header-right">
+    <a href="#" id="account">Account</a>
+    <a href="cart.html" style="position:relative;">
+      🛒 Cart <span id="cartCount" class="cart-count">0</span>
+    </a>
+  </div>
 </header>
 
-<div class="container">
-
-  <div class="card">
-    <img src="arc-lighter.jpg" alt="Arc Lighter">
-    <h3 id="p1">আর্ক লাইটার</h3>
-    <div class="price">৳ 850</div>
-    <a class="btn" id="b1" href="checkout.html?product=Arc%20Lighter&price=850">
-      অর্ডার করুন
-    </a>
-  </div>
-
-  <div class="card">
-    <img src="nose-hair-trimmer.jpg" alt="Nose Hair Trimmer">
-    <h3 id="p2">নোজ হেয়ার ট্রিমার</h3>
-    <div class="price">৳ 840</div>
-    <a class="btn" id="b2" href="checkout.html?product=Nose%20Hair%20Trimmer&price=840">
-      অর্ডার করুন
-    </a>
-  </div>
-
+<div class="container" id="productContainer">
+  <!-- Products injected by JS -->
 </div>
 
 <script>
-let bn=true;
-function toggleLang(){
-  bn=!bn;
-  document.getElementById("title").innerText = bn ? "টাইটান মার্ট বিডি" : "Titan Mart BD";
-  document.getElementById("p1").innerText = bn ? "আর্ক লাইটার" : "Arc Lighter";
-  document.getElementById("p2").innerText = bn ? "নোজ হেয়ার ট্রিমার" : "Nose Hair Trimmer";
-  document.getElementById("b1").innerText = bn ? "অর্ডার করুন" : "Buy Now";
-  document.getElementById("b2").innerText = bn ? "অর্ডার করুন" : "Buy Now";
-  document.querySelector(".lang-btn").innerText = bn ? "EN" : "BN";
+// Products array
+const products = [
+  {
+    name: "Arc Lighter",
+    price: 850,
+    image: "arc-lighter.jpg"
+  },
+  {
+    name: "Nose Hair Trimmer",
+    price: 840,
+    image: "nose-hair-trimmer.jpg"
+  }
+];
+
+// Render products
+const container = document.getElementById("productContainer");
+products.forEach((p,i)=>{
+  const card = document.createElement("div");
+  card.className="card";
+  card.innerHTML=`
+    <img src="${p.image}" alt="${p.name}">
+    <h3>${p.name}</h3>
+    <div class="price">৳ ${p.price}</div>
+    <button class="btn" onclick="buyNow(${i})">Buy Now</button>
+    <button class="btn" onclick="addToCart(${i})">Add to Cart</button>
+  `;
+  container.appendChild(card);
+});
+
+// LocalStorage cart
+function getCart(){return JSON.parse(localStorage.getItem("cart")||"[]");}
+function setCart(c){localStorage.setItem("cart",JSON.stringify(c));updateCartCount();}
+function updateCartCount(){document.getElementById("cartCount").innerText=getCart().length;}
+
+// Add to cart
+function addToCart(index){
+  const cart = getCart();
+  const product = products[index];
+  const exist = cart.find(p=>p.name===product.name);
+  if(exist){exist.qty+=1;}else{cart.push({...product, qty:1});}
+  setCart(cart);
+  alert(product.name+" added to cart");
 }
+
+// Buy Now
+function buyNow(index){
+  const p=products[index];
+  window.location.href=`checkout.html?product=${encodeURIComponent(p.name)}&price=${p.price}`;
+}
+
+updateCartCount();
 </script>
 
 </body>
