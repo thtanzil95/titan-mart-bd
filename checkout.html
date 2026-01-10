@@ -167,7 +167,7 @@ Total: ৳${total}`;
   window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg),"_blank");
   
 // Send to Google Sheet
-  fetch("https://script.google.com/macros/s/AKfycbyRGsQ8Alu7YlcaENawN28-aWJT2ER-OGDmVvIpuUbcne3Tj20ZyZRnwPsCO8VF0mXyRQ/exec",{
+  fetch("https://script.google.com/macros/s/AKfycbwUDfHH4eULjNjK8DtRPVmFg3IoFnm3ogPY5jUAgJkaOBgYT2cYuVS9jC9zrnuahY5z/exec/",{
     method:"POST",
     body: JSON.stringify({orderId:id,date:date,time:time,name:name,phone:phone,address:address,district:district,thana:thana,product:productName,qty:qty,delivery:delivery,total:total})
   }).then(r=>r.text()).then(console.log).catch(console.error);
@@ -181,4 +181,5 @@ document.getElementById("qty").addEventListener("change",calc);
 </script>
 </body>
 </html>
+
 
