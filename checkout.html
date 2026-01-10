@@ -1,194 +1,156 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Titan Mart BD | Checkout</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checkout | Titan Mart BD</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{
-  font-family: Arial, sans-serif;
-  background:#f5f7fa;
-  margin:0;
-}
-.header{
-  background:#0a1f44;
-  color:#fff;
-  padding:15px;
-  text-align:center;
-  font-size:22px;
-  font-weight:bold;
-}
-.container{
-  padding:15px;
-}
-.card{
-  background:#fff;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:15px;
-  box-shadow:0 2px 8px rgba(0,0,0,.1);
-}
-.card h3{
-  margin-top:0;
-  border-bottom:1px solid #eee;
-  padding-bottom:5px;
-}
-input,select{
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  border:1px solid #ccc;
-  border-radius:6px;
-  font-size:15px;
-}
-.product{
-  display:flex;
-  gap:12px;
-  align-items:center;
-}
-.product img{
-  width:90px;
-  border-radius:8px;
-}
-.price{
-  color:#e53935;
-  font-weight:bold;
-  font-size:18px;
-}
-.qty{
-  width:80px;
-}
-.total{
-  font-size:20px;
-  font-weight:bold;
-  text-align:right;
-}
-.note{
-  background:#f1f3f6;
-  padding:10px;
-  border-radius:6px;
-  font-size:14px;
-  margin-top:10px;
-}
-.btn{
-  background:#ff5722;
-  color:#fff;
-  padding:14px;
-  text-align:center;
-  font-size:18px;
-  border-radius:8px;
-  cursor:pointer;
-  margin-top:15px;
-}
-.btn:hover{background:#e64a19;}
+body{margin:0;font-family:Arial;background:#f2f4f8;}
+.container{max-width:720px;margin:30px auto;padding:15px;}
+.card{background:#fff;border-radius:14px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,.15);}
+h2{text-align:center;color:#ff4c00;}
+label{font-weight:600;margin-top:14px;display:block;}
+input,select{width:100%;padding:12px;margin-top:8px;border:1px solid #ccc;border-radius:8px;}
+.product-img{width:100%;max-height:260px;object-fit:contain;margin-top:15px;}
+.info{margin-top:10px;}
+.total{font-size:18px;font-weight:bold;margin-top:12px;}
+.note{font-size:13px;color:#555;margin-top:8px;}
+button{width:100%;margin-top:20px;padding:15px;background:#ff4c00;color:#fff;border:none;font-size:16px;border-radius:8px;cursor:pointer;}
+.brand{text-align:center;font-weight:bold;margin-bottom:10px;}
+.search{margin-top:6px;}
 </style>
 </head>
 
 <body>
-
-<div class="header">Titan Mart BD</div>
-
 <div class="container">
-
-<!-- CUSTOMER INFO -->
 <div class="card">
-<h3>Customer Information</h3>
-<input id="name" placeholder="Name *">
-<input id="phone" placeholder="Phone *">
-<select id="district">
-  <option value="">Select District *</option>
-  <option value="ঢাকা">ঢাকা</option>
-  <option value="চট্টগ্রাম">চট্টগ্রাম</option>
-  <option value="রাজশাহী">রাজশাহী</option>
-  <option value="খুলনা">খুলনা</option>
+
+<div class="brand">Titan Mart BD</div>
+<h2>Checkout</h2>
+
+<label>Full Name *</label>
+<input id="name">
+
+<label>Mobile Number *</label>
+<input id="phone">
+
+<label>Full Address *</label>
+<input id="address">
+
+<label>District *</label>
+<input id="districtSearch" class="search" placeholder="Search district">
+<select id="district"></select>
+
+<label>Thana / Upazila *</label>
+<input id="thanaSearch" class="search" placeholder="Search thana">
+<select id="thana"></select>
+
+<img id="productImg" class="product-img">
+
+<div class="info"><b>Product:</b> <span id="productName"></span></div>
+<div class="info"><b>Price:</b> ৳ <span id="price"></span></div>
+
+<label>Quantity</label>
+<select id="qty">
+  <option>1</option>
+  <option>2</option>
+  <option>3</option>
 </select>
-<input id="thana" placeholder="Thana">
-<input id="address" placeholder="Full Address">
-</div>
 
-<!-- PRODUCT -->
-<div class="card">
-<h3>Product</h3>
-<div class="product">
-  <img src="https://i.imgur.com/8zQZQZC.jpg">
-  <div>
-    <div><b>Electric Extension Board</b></div>
-    <div class="price">৳ <span id="price">950</span></div>
-    Qty:
-    <input id="qty" class="qty" type="number" value="1" min="1" oninput="calc()">
-  </div>
-</div>
-</div>
-
-<!-- TOTAL -->
-<div class="card">
-<h3>Order Summary</h3>
-<div class="total">Total: ৳ <span id="total">950</span></div>
+<div class="total">Total: ৳ <span id="total"></span></div>
 
 <div class="note">
-🚚 Delivery Info:<br>
-Inside Dhaka: 60৳<br>
-Outside Dhaka: 120৳
-</div>
+Delivery Info (Not Added):<br>
+Inside Dhaka – ৳60<br>
+Outside Dhaka – ৳120
 </div>
 
-<div class="btn" onclick="orderNow()">Confirm Order</div>
+<button onclick="placeOrder()">Confirm Order</button>
 
+</div>
 </div>
 
 <script>
-let price = 950;
+const params=new URLSearchParams(location.search);
+const product=params.get("product")||"Arc Lighter";
+const price=parseInt(params.get("price"))||650;
+
+document.getElementById("productName").innerText=product;
+document.getElementById("price").innerText=price;
+
+document.getElementById("productImg").src=
+product.toLowerCase().includes("lighter")?
+"arc-lighter.jpg":"nose-hair-trimmer.jpg";
 
 function calc(){
-  let q = parseInt(document.getElementById("qty").value);
-  document.getElementById("total").innerText = price * q;
+document.getElementById("total").innerText=
+price*parseInt(document.getElementById("qty").value);
+}
+document.getElementById("qty").onchange=calc;
+calc();
+
+// Order ID
+function oid(){return "TM"+Math.floor(10000+Math.random()*90000);}
+
+// WhatsApp order
+function placeOrder(){
+const name=nameEl.value.trim();
+const phone=phoneEl.value.trim();
+const address=addressEl.value.trim();
+const district=districtEl.value;
+const thana=thanaEl.value;
+const qty=qtyEl.value;
+
+if(!name||!phone||!address||!district||!thana){
+alert("Please fill all fields");
+return;
 }
 
-function orderNow(){
-  let n=document.getElementById("name").value;
-  let p=document.getElementById("phone").value;
-  let d=document.getElementById("district").value;
-  let t=document.getElementById("thana").value;
-  let a=document.getElementById("address").value;
-  let q=document.getElementById("qty").value;
-  let total=price*q;
+const now=new Date();
+const msg=`Titan Mart BD Order
+Order ID: ${oid()}
+Date: ${now.toLocaleDateString()}
+Time: ${now.toLocaleTimeString()}
 
-  if(!n || !p || !d){
-    alert("Name, Phone & District required");
-    return;
-  }
+Name: ${name}
+Phone: ${phone}
+Address: ${address}
+District: ${district}
+Thana: ${thana}
 
-  let now=new Date();
-  let date=now.toLocaleDateString();
-  let time=now.toLocaleTimeString();
-  let orderId="TM"+now.getTime();
-
-  let msg=`Titan Mart BD Order
-
-Order ID: ${orderId}
-Date: ${date}
-Time: ${time}
-
-Name: ${n}
-Phone: ${p}
-District: ${d}
-Thana: ${t}
-Address: ${a}
-
-Product: Electric Extension Board
+Product: ${product}
 Price: ৳${price}
-Quantity: ${q}
-Total: ৳${total}
+Quantity: ${qty}
+Total: ৳${price*qty}
 
 Delivery Info:
-Inside Dhaka 60৳
-Outside Dhaka 120৳`;
+Inside Dhaka – ৳60
+Outside Dhaka – ৳120`;
 
-  let url="https://wa.me/8801410236917?text="+encodeURIComponent(msg);
-  window.open(url,"_blank");
+window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg),"_blank");
 }
-</script>
 
-</body>
-</html>
+// Elements
+const districtEl=document.getElementById("district");
+const thanaEl=document.getElementById("thana");
+const nameEl=document.getElementById("name");
+const phoneEl=document.getElementById("phone");
+const addressEl=document.getElementById("address");
+const qtyEl=document.getElementById("qty");
+
+let data={};
+
+// Load JSON
+fetch("bangladesh_upazilas.json")
+.then(r=>r.json())
+.then(j=>{data=j;loadDistricts();});
+
+// District load
+function loadDistricts(filter=""){
+districtEl.innerHTML="";
+Object.keys(data)
+.filter(d=>d.toLowerCase().includes(filter))
+.forEach(d=>{
+let o=document.createElement("option");
+o.value=d;o.text=d;district
