@@ -1,55 +1,192 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Admin | Titan Mart BD</title>
+<meta charset="UTF-8">
+<title>Admin Panel | Titan Mart BD</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-body{font-family:Arial}
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #ccc;padding:8px}
-button{padding:8px 12px;background:#28a745;color:#fff;border:none}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
+header{background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:22px;}
+.container{max-width:1200px;margin:20px auto;padding:20px;background:#fff;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.1);}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+th,td{padding:10px;border:1px solid #ccc;text-align:left;font-size:14px;}
+th{background:#ff4c00;color:#fff;cursor:pointer;}
+input,button{padding:8px;margin:5px;border-radius:5px;border:1px solid #ccc;}
+button{background:#ff4c00;color:#fff;border:none;cursor:pointer;}
+button:hover{background:#e04300;}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;}
+.modal-content{background:#fff;padding:20px;border-radius:10px;width:400px;max-width:90%;}
+.close{float:right;cursor:pointer;color:#ff4c00;font-weight:bold;font-size:18px;}
+.pagination{margin-top:10px;text-align:right;}
+.pagination button{margin-left:5px;}
 </style>
 </head>
 <body>
 
-<script>
-if(localStorage.getItem("admin")!=="yes") location.href="login.html";
-</script>
+<header>Admin Panel | Titan Mart BD</header>
 
-<h2>Orders</h2>
-<button onclick="download()">Download Excel</button>
+<div class="container">
 
-<table>
+<div>
+  <input type="text" id="search" placeholder="Search by name, phone, district, product...">
+  <label>From: <input type="date" id="fromDate"></label>
+  <label>To: <input type="date" id="toDate"></label>
+  <button onclick="exportTableToCSV('orders.csv')"><i class="fas fa-file-csv"></i> Export CSV</button>
+</div>
+
+<table id="ordersTable">
 <thead>
 <tr>
-<th>ID</th><th>Date</th><th>Name</th><th>Phone</th><th>Product</th><th>Total</th>
+<th onclick="sortTable(0)">Order ID</th>
+<th onclick="sortTable(1)">Date</th>
+<th onclick="sortTable(2)">Time</th>
+<th onclick="sortTable(3)">Name</th>
+<th onclick="sortTable(4)">Phone</th>
+<th onclick="sortTable(5)">District</th>
+<th onclick="sortTable(6)">Product</th>
+<th onclick="sortTable(7)">Qty</th>
+<th onclick="sortTable(8)">Total</th>
+<th>View</th>
 </tr>
 </thead>
-<tbody id="data"></tbody>
+<tbody></tbody>
 </table>
 
-<script>
-const orders = JSON.parse(localStorage.getItem("orders")||"[]");
-data.innerHTML = orders.map(o=>`
-<tr>
-<td>${o.id}</td>
-<td>${o.date}</td>
-<td>${o.name}</td>
-<td>${o.phone}</td>
-<td>${o.product}</td>
-<td>${o.total}</td>
-</tr>
-`).join("");
+<div class="pagination" id="pagination"></div>
 
-function download(){
- let csv="ID,Date,Name,Phone,Product,Total\n";
- orders.forEach(o=>{
-  csv+=`${o.id},${o.date},${o.name},${o.phone},${o.product},${o.total}\n`;
- });
- const a=document.createElement("a");
- a.href=URL.createObjectURL(new Blob([csv]));
- a.download="orders.csv";
- a.click();
+</div>
+
+<!-- Modal -->
+<div class="modal" id="orderModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const SHEET_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+let ordersData = [];
+let currentPage = 1;
+const rowsPerPage = 10;
+
+function fetchOrders(){
+  fetch(SHEET_URL)
+    .then(resp=>resp.json())
+    .then(data=>{
+      ordersData = data.reverse(); // latest first
+      renderTable();
+      renderPagination();
+    }).catch(err=>console.log(err));
 }
+
+function renderTable(){
+  const tbody = document.querySelector("#ordersTable tbody");
+  tbody.innerHTML="";
+  const filtered = filterData();
+  const start = (currentPage-1)*rowsPerPage;
+  const paginated = filtered.slice(start,start+rowsPerPage);
+  paginated.forEach(o=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML=`
+      <td>${o.orderID}</td>
+      <td>${o.date}</td>
+      <td>${o.time}</td>
+      <td>${o.name}</td>
+      <td>${o.phone}</td>
+      <td>${o.district}</td>
+      <td>${o.product}</td>
+      <td>${o.qty}</td>
+      <td>৳${o.total}</td>
+      <td><button onclick='viewOrder(${JSON.stringify(o)})'>View</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterData(){
+  const term = document.getElementById("search").value.toLowerCase();
+  const from = document.getElementById("fromDate").value;
+  const to = document.getElementById("toDate").value;
+  return ordersData.filter(o=>{
+    const matchesSearch = o.name.toLowerCase().includes(term) || o.phone.includes(term) || o.district.toLowerCase().includes(term) || o.product.toLowerCase().includes(term);
+    let matchesDate = true;
+    if(from){matchesDate = o.date>=from;}
+    if(to){matchesDate = matchesDate && o.date<=to;}
+    return matchesSearch && matchesDate;
+  });
+}
+
+// Pagination
+function renderPagination(){
+  const filtered = filterData();
+  const totalPages = Math.ceil(filtered.length/rowsPerPage);
+  const container = document.getElementById("pagination");
+  container.innerHTML="";
+  for(let i=1;i<=totalPages;i++){
+    const btn = document.createElement("button");
+    btn.innerText=i;
+    if(i===currentPage) btn.style.background="#e04300";
+    btn.onclick=()=>{currentPage=i;renderTable(); renderPagination();}
+    container.appendChild(btn);
+  }
+}
+
+// Modal
+function viewOrder(o){
+  const modal = document.getElementById("orderModal");
+  const body = document.getElementById("modalBody");
+  body.innerHTML=`
+    <h3>Order ID: ${o.orderID}</h3>
+    <p><b>Date:</b> ${o.date} <b>Time:</b> ${o.time}</p>
+    <p><b>Name:</b> ${o.name}</p>
+    <p><b>Phone:</b> ${o.phone}</p>
+    <p><b>Address:</b> ${o.address}</p>
+    <p><b>District:</b> ${o.district}</p>
+    <p><b>Thana:</b> ${o.thana}</p>
+    <p><b>Product:</b> ${o.product}</p>
+    <p><b>Quantity:</b> ${o.qty}</p>
+    <p><b>Delivery:</b> ৳${o.delivery}</p>
+    <p><b>Total:</b> ৳${o.total}</p>
+  `;
+  modal.style.display="flex";
+}
+function closeModal(){document.getElementById("orderModal").style.display="none";}
+
+// Sort
+function sortTable(col){
+  ordersData.sort((a,b)=>{
+    const valA=Object.values(a)[col];
+    const valB=Object.values(b)[col];
+    if(!isNaN(valA) && !isNaN(valB)) return valA-valB;
+    return valA.toString().localeCompare(valB.toString());
+  });
+  renderTable();
+}
+
+// CSV export
+function exportTableToCSV(filename){
+  const rows = document.querySelectorAll("table tr");
+  let csv = [];
+  rows.forEach(row=>{
+    const cols=row.querySelectorAll("td,th");
+    const rowData=[];
+    cols.forEach(col=>rowData.push('"'+col.innerText+'"'));
+    csv.push(rowData.join(","));
+  });
+  const blob = new Blob([csv.join("\n")],{type:"text/csv"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=filename;
+  a.click();
+}
+
+document.getElementById("search").addEventListener("input",()=>{currentPage=1; renderTable(); renderPagination();});
+document.getElementById("fromDate").addEventListener("change",()=>{currentPage=1; renderTable(); renderPagination();});
+document.getElementById("toDate").addEventListener("change",()=>{currentPage=1; renderTable(); renderPagination();});
+
+fetchOrders();
 </script>
 
 </body>
