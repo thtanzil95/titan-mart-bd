@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cart | Titan Mart BD</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
+header{background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:22px;position:relative;}
+header a{color:#fff;text-decoration:none;font-weight:bold;position:absolute;right:15px;top:15px;}
+.container{max-width:900px;margin:auto;padding:20px;}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+th,td{padding:12px;text-align:center;border-bottom:1px solid #ddd;}
+th{background:#ff4c00;color:#fff;}
+img{width:80px;height:80px;object-fit:contain;}
+.qty-input{width:50px;text-align:center;}
+.btn{padding:8px 12px;background:#ff4c00;color:#fff;border:none;border-radius:5px;cursor:pointer;}
+.total-row td{font-weight:bold;}
+</style>
+</head>
+<body>
+
+<header>
+Cart
+<a href="index.html">Back</a>
+</header>
+
+<div class="container">
+  <table id="cartTable">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Image</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Subtotal</th>
+        <th>Remove</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Cart items injected by JS -->
+    </tbody>
+    <tfoot>
+      <tr class="total-row">
+        <td colspan="4">Total</td>
+        <td id="grandTotal">৳0</td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+  <br>
+  <button class="btn" onclick="checkout()">Checkout</button>
+</div>
+
+<script>
+// Load cart from localStorage
+let cart = JSON.parse(localStorage.getItem("cart")||"[]");
+
+// Render cart table
+function renderCart(){
+  const tbody = document.querySelector("#cartTable tbody");
+  tbody.innerHTML="";
+  let total=0;
+  cart.forEach((item,index)=>{
+    const subtotal = item.price*item.qty;
+    total+=subtotal;
+    const row = document.createElement("tr");
+    row.innerHTML=`
+      <td>${item.name}</td>
+      <td><img src="${item.image}" alt="${item.name}"></td>
+      <td>৳${item.price}</td>
+      <td><input type="number" min="1" value="${item.qty}" class="qty-input" onchange="updateQty(${index},this.value)"></td>
+      <td>৳${subtotal}</td>
+      <td><button class="btn" onclick="removeItem(${index})">Remove</button></td>
+    `;
+    tbody.appendChild(row);
+  });
+  document.getElementById("grandTotal").innerText="৳"+total;
+}
+
+// Update quantity
+function updateQty(index,value){
+  value=parseInt(value);
+  if(value<1)value=1;
+  cart[index].qty=value;
+  localStorage.setItem("cart",JSON.stringify(cart));
+  renderCart();
+}
+
+// Remove item
+function removeItem(index){
+  if(confirm("Remove this item from cart?")){
+    cart.splice(index,1);
+    localStorage.setItem("cart",JSON.stringify(cart));
+    renderCart();
+  }
+}
+
+// Checkout
+function checkout(){
+  if(cart.length===0){ alert("Cart is empty!"); return; }
+  // Build query params for checkout.html
+  const params = cart.map(p=>`product=${encodeURIComponent(p.name)}&price=${p.price}&qty=${p.qty}`).join("&");
+  window.location.href="checkout.html?"+params;
+}
+
+renderCart();
+</script>
+
+</body>
+</html>
