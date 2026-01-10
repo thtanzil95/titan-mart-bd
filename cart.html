@@ -7,53 +7,82 @@
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
 header{background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:22px;}
-.container{max-width:900px;margin:auto;padding:20px;}
-.cart-item{background:#fff;padding:15px;margin-bottom:15px;border-radius:8px;display:flex;align-items:center;gap:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-.cart-item img{width:100px;height:100px;object-fit:contain;}
-.cart-item div{flex:1;}
-input[type=number]{width:60px;padding:5px;}
-button{padding:6px 10px;background:#ff4c00;color:#fff;border:none;border-radius:5px;cursor:pointer;margin-left:5px;}
-.total{background:#fff;padding:15px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);text-align:right;font-size:18px;font-weight:bold;}
-.checkout-btn{width:100%;padding:15px;background:#ff4c00;color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer;margin-top:10px;}
+.container{max-width:900px;margin:20px auto;padding:20px;background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:12px;text-align:center;border-bottom:1px solid #ccc;}
+img{width:80px;height:80px;object-fit:contain;}
+button{padding:8px 12px;background:#ff4c00;color:#fff;border:none;border-radius:5px;cursor:pointer;}
+.total{font-weight:bold;font-size:18px;text-align:right;margin-top:15px;}
 </style>
 </head>
 <body>
-<header>Titan Mart BD Cart</header>
-<div class="container" id="cartContainer"></div>
+
+<header>Titan Mart BD - Cart</header>
+
 <div class="container">
-  <div class="total">Total: ৳ <span id="totalPrice">0</span></div>
-  <button class="checkout-btn" onclick="goCheckout()">Proceed to Checkout</button>
+  <table id="cartTable">
+    <tr>
+      <th>Product</th>
+      <th>Image</th>
+      <th>Price</th>
+      <th>Quantity</th>
+      <th>Subtotal</th>
+      <th>Remove</th>
+    </tr>
+  </table>
+  <div class="total">Total: ৳ <span id="total">0</span></div>
+  <button onclick="checkout()">Proceed to Checkout</button>
 </div>
 
 <script>
-const products = JSON.parse(localStorage.getItem("cart")||"[]");
-const container = document.getElementById("cartContainer");
-function updateCart(){
-  container.innerHTML="";
-  let total=0;
-  products.forEach((p,i)=>{
-    const item = document.createElement("div");
-    item.className="cart-item";
-    item.innerHTML=`
-      <img src="${p.image}" alt="${p.name}">
-      <div>
-        <b>${p.name}</b><br>Price: ৳${p.price} <br>
-        Qty: <input type="number" min="1" value="${p.qty}" onchange="changeQty(${i},this.value)">
-      </div>
-      <div>
-        Subtotal: ৳${p.price*p.qty} <br>
-        <button onclick="removeItem(${i})">Remove</button>
-      </div>
+// Load cart from localStorage
+let cart = JSON.parse(localStorage.getItem("cart")||"[]");
+
+function renderCart(){
+  const table = document.getElementById("cartTable");
+  table.innerHTML=`<tr>
+    <th>Product</th><th>Image</th><th>Price</th><th>Quantity</th><th>Subtotal</th><th>Remove</th>
+  </tr>`;
+  let total = 0;
+  cart.forEach((p,i)=>{
+    const subtotal = p.price*p.qty;
+    total += subtotal;
+    const row = document.createElement("tr");
+    row.innerHTML=`
+      <td>${p.name}</td>
+      <td><img src="${p.image}" alt="${p.name}"></td>
+      <td>৳ ${p.price}</td>
+      <td><input type="number" min="1" value="${p.qty}" onchange="updateQty(${i},this.value)"></td>
+      <td>৳ ${subtotal}</td>
+      <td><button onclick="removeItem(${i})">X</button></td>
     `;
-    container.appendChild(item);
-    total += p.price*p.qty;
+    table.appendChild(row);
   });
-  document.getElementById("totalPrice").innerText=total;
+  document.getElementById("total").innerText=total;
 }
-function changeQty(i,val){products[i].qty=parseInt(val);localStorage.setItem("cart",JSON.stringify(products));updateCart();}
-function removeItem(i){products.splice(i,1);localStorage.setItem("cart",JSON.stringify(products));updateCart();}
-function goCheckout(){if(products.length==0){alert("Cart is empty");return;}window.location.href="checkout.html";}
-updateCart();
+
+function updateQty(index,value){
+  cart[index].qty=parseInt(value);
+  localStorage.setItem("cart",JSON.stringify(cart));
+  renderCart();
+}
+
+function removeItem(index){
+  cart.splice(index,1);
+  localStorage.setItem("cart",JSON.stringify(cart));
+  renderCart();
+}
+
+// Proceed to Checkout
+function checkout(){
+  if(cart.length===0){alert("Cart is empty!"); return;}
+  // Save current cart to localStorage for checkout page
+  localStorage.setItem("checkoutCart",JSON.stringify(cart));
+  window.location.href="checkout.html";
+}
+
+renderCart();
 </script>
+
 </body>
 </html>
