@@ -4,69 +4,45 @@
 <meta charset="UTF-8">
 <title>Titan Mart BD</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#f9f9f9;}
-header{background:#ff4c00;color:#fff;padding:15px;font-size:22px;text-align:center;position:relative;}
-.container{max-width:1200px;margin:auto;padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;}
-.card{background:#fff;border-radius:12px;text-align:center;padding:20px;box-shadow:0 10px 20px rgba(0,0,0,0.08);transition:0.3s;}
-.card:hover{transform:translateY(-5px);box-shadow:0 15px 25px rgba(0,0,0,0.12);}
-.card img{width:100%;height:220px;object-fit:contain;border-radius:10px;}
-.price{color:#ff4c00;font-size:18px;font-weight:bold;margin:10px 0;}
-.btn{display:inline-block;margin-top:10px;padding:10px 18px;background:#ff4c00;color:#fff;border:none;border-radius:6px;cursor:pointer;transition:0.3s;font-weight:bold;}
-.btn:hover{background:#e04300;}
-.top-social{position:fixed;top:15px;left:15px;display:flex;flex-direction:column;gap:10px;z-index:999;}
-.top-social a{width:45px;height:45px;display:flex;align-items:center;justify-content:center;color:#fff;border-radius:50%;font-size:22px;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
-.fb{background:#1877f2;}
-.wa{background:#25D366;}
-footer{margin-top:40px;text-align:center;color:#555;padding:15px;font-size:14px;}
+body{font-family:Arial;background:#f5f5f5;margin:0}
+header{background:#ff4c00;color:#fff;padding:15px;text-align:center;font-size:22px}
+.container{max-width:1000px;margin:auto;padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.card{background:#fff;padding:15px;border-radius:8px;text-align:center}
+.card img{width:100%;height:200px;object-fit:contain}
+.price{color:#ff4c00;font-size:18px;font-weight:bold}
+.btn{margin-top:10px;padding:10px 15px;background:#ff4c00;color:#fff;border:none;border-radius:5px;cursor:pointer}
+footer{text-align:center;padding:15px;background:#222;color:#fff}
 </style>
 </head>
 <body>
 
-<!-- Floating social buttons -->
-<div class="top-social">
-  <a class="fb" href="https://www.facebook.com/share/14Sd48q5kpU/" target="_blank"><i class="fab fa-facebook-f"></i></a>
-  <a class="wa" href="https://wa.me/8801980236917" target="_blank"><i class="fab fa-whatsapp"></i></a>
+<header>Titan Mart BD</header>
+
+<div class="container">
+
+<div class="card">
+<img src="arc-lighter.jpg">
+<h3>Arc Lighter</h3>
+<div class="price">৳ 850</div>
+<button class="btn" onclick="buy('Arc Lighter',850,'arc-lighter.jpg')">Buy Now</button>
 </div>
 
-<header>
-  Titan Mart BD
-</header>
-
-<div class="container" id="productContainer">
-  <!-- Products will be injected here -->
+<div class="card">
+<img src="nose-hair-trimmer.jpg">
+<h3>Nose Hair Trimmer</h3>
+<div class="price">৳ 840</div>
+<button class="btn" onclick="buy('Nose Hair Trimmer',840,'nose-hair-trimmer.jpg')">Buy Now</button>
 </div>
 
-<footer>
-  &copy; 2026 Titan Mart BD. All rights reserved.
-</footer>
+</div>
+
+<footer>© Titan Mart BD</footer>
 
 <script>
-// ===== Products Array =====
-const products = [
-  { name:"Arc Lighter", price:850, img:"arc-lighter.jpg" },
-  { name:"Nose Hair Trimmer", price:840, img:"nose-hair-trimmer.jpg" }
-];
-
-// ===== Render Products =====
-const container = document.getElementById("productContainer");
-products.forEach((p,i)=>{
-  const card = document.createElement("div");
-  card.className="card";
-  card.innerHTML=`
-    <img src="${p.img}" alt="${p.name}">
-    <h3>${p.name}</h3>
-    <div class="price">৳ ${p.price}</div>
-    <button class="btn" onclick="buyNow(${i})">Buy Now</button>
-  `;
-  container.appendChild(card);
-});
-
-// ===== Buy Now -> Checkout =====
-function buyNow(index){
-  const p=products[index];
-  window.location.href=`checkout.html?product=${encodeURIComponent(p.name)}&price=${p.price}&img=${p.img}`;
+function buy(name,price,img){
+  localStorage.setItem("buy",JSON.stringify({name,price,img}));
+  window.location.href="checkout.html";
 }
 </script>
 
