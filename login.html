@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Login</title>
+<style>
+body{display:flex;justify-content:center;align-items:center;height:100vh;font-family:Arial}
+.box{padding:20px;border:1px solid #ccc}
+input,button{width:100%;padding:10px;margin-top:10px}
+button{background:#ff4c00;color:#fff;border:none}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h2>Admin Login</h2>
+<input id="u" placeholder="Username">
+<input id="p" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+</div>
+
+<script>
+function login(){
+  if(u.value==="admin" && p.value==="1234"){
+    localStorage.setItem("admin","yes");
+    location.href="admin.html";
+  }else{
+    alert("Wrong login");
+  }
+}
+</script>
+
+</body>
+</html>
