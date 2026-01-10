@@ -138,18 +138,36 @@ function placeOrder(){
     total:total
   };
 
-  // Send to Google Sheet
-  fetch("https://script.google.com/macros/s/AKfycbyRGsQ8Alu7YlcaENawN28-aWJT2ER-OGDmVvIpuUbcne3Tj20ZyZRnwPsCO8VF0mXyRQ/exec",{
-    method:"POST",
-    body:JSON.stringify(orderData)
-  }).then(res=>res.text()).then(txt=>console.log(txt));
-
   // WhatsApp Auto
   const msg = `Order ID: ${id}\nDate: ${date}\nTime: ${time}\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nDistrict: ${district}\nThana: ${thana}\nProduct: ${product}\nQuantity: ${qty}\nDelivery Charge: ৳${delivery}\nTotal: ৳${total}`;
   window.open("https://wa.me/8801980236917?text="+encodeURIComponent(msg),"_blank");
 }
+// Google Sheet URL
+const sheetURL = "https://script.google.com/macros/s/AKfycbw1n8ZuS9AMwmAdtI4tgoMZFYW3Vfll2KzHplkloerNipqYwRNKn3HSXONvxCNTA6oq3Q/exec";
+
+fetch(sheetURL, {
+  method: "POST",
+  body: new URLSearchParams({
+    orderID: id,
+    date: date,
+    time: time,
+    name: name,
+    phone: phone,
+    address: address,
+    district: district,
+    thana: thana,
+    product: product,
+    quantity: qty,
+    deliveryCharge: delivery,
+    total: total
+  })
+})
+.then(resp => resp.json())
+.then(res => console.log("Sheet response:", res))
+.catch(err => console.error("Sheet error:", err));
 
 populateDistricts();
 </script>
 </body>
 </html>
+
